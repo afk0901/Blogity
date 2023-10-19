@@ -1,0 +1,14 @@
+[tool.mypy]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+files = "."
+ignore_missing_imports = true
+exclude = "^venv/"
+
+[tool.django-stubs]
+django_settings_module = "Bloggity.settings.local"
+
+[tool.black]
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"

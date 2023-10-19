@@ -1,0 +1,13 @@
+# PyCharm
+.idea/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# logs
+*.log
+
+# local
+key.json
+key.pem
+cert.pem
