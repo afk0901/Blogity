@@ -11,6 +11,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("id", "title", "author__username", "author")
+    http_method_names = ['get', 'post', 'put', 'delete']
 
     def get_serializer_class(self):
         # Switching serializers depending on if include_comments query parameter
@@ -26,19 +27,8 @@ class PostViewSet(viewsets.ModelViewSet):
             return Post.post_manager.get_all_posts_and_related_comments()
         return Post.objects.all()
 
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def perform_update(self, serializer):
-        serializer.save()
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def perform_update(self, serializer):
-        serializer.save()
+    http_method_names = ['get', 'post', 'put', 'delete']
