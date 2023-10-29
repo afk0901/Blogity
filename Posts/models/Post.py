@@ -5,7 +5,9 @@ from Users.models import CustomUser
 
 
 class Post(models.Model):
-    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="author")
+    author = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="author"
+    )
     title = models.CharField(max_length=100)
     content = models.TextField()
     publish_date = models.DateTimeField(auto_now=True)

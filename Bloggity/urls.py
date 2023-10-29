@@ -20,11 +20,13 @@ from decouple import config
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/posts/', include('Posts.urls')),
-    path('api/users/', include('Users.urls'))
+    path("admin/", admin.site.urls),
+    path("api/posts/", include("Posts.urls")),
+    path("api/users/", include("Users.urls")),
 ]
 
 # DEVELOPING URLS - ONLY FOR DEVELOPMENT
-if config('DEBUG', cast=bool):
-    urlpatterns += [path("__debug__/", include("debug_toolbar.urls")),]
+if config("DEBUG", cast=bool):
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls")),
+    ]
