@@ -4,9 +4,9 @@ from .views import PostViewSet, CommentViewSet
 
 router = DefaultRouter()
 # Registering with an empty prefix since it's the main resource of this app's URLs.
-router.register('', PostViewSet)
-router.register('comments', CommentViewSet)
+router.register('', PostViewSet, basename="posts")
 
 urlpatterns = [
+
     path('', include(router.urls)),
 ]

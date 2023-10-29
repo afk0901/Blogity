@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from decouple import config
 
 
 urlpatterns = [
@@ -23,3 +24,7 @@ urlpatterns = [
     path('api/posts/', include('Posts.urls')),
     path('api/users/', include('Users.urls'))
 ]
+
+# DEVELOPING URLS - ONLY FOR DEVELOPMENT
+if config('DEBUG', cast=bool):
+    urlpatterns += [path("__debug__/", include("debug_toolbar.urls")),]

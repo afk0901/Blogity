@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Posts.models import Comment
+from Posts.models.Comment import Comment
 
 
 class CommentSerializer(serializers.ModelSerializer):
