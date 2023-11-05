@@ -1,14 +1,13 @@
 from rest_framework import viewsets
-from Posts.models.Post import Post
-from Posts.models.Comment import Comment
-from .serializers.PostSerializer import PostSerializer, PostWithCommentsSerializer
-from .serializers.CommentSerializer import CommentSerializer
+from Posts.models import Post, Comment
+from Posts.serializers import PostSerializer, PostWithCommentsSerializer
+from Posts.serializers import CommentSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    # Using Django filter backend to make queryset filtering available
 
+    # Using Django filter backend to filter by query-parameters from the URL
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("id", "title", "author__username", "author")
     http_method_names = ['get', 'post', 'put', 'delete']
@@ -22,8 +21,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.query_params.get("include_comments") == "true":
-            # Using a custom manager for re-usability without creating maintenance, mess
-            # because we need to put in a parameter according to a field.
             return Post.post_manager.get_all_posts_and_related_comments()
         return Post.objects.all()
 
