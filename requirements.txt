@@ -3,3 +3,5 @@ psycopg2
 python-decouple
 djangorestframework
 django-filter
+drf-nested-routers
+djangorestframework-simplejwt

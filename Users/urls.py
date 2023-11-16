@@ -4,6 +4,6 @@ from django.urls import path, include
 
 router = DefaultRouter()
 # Registering with an empty prefix since it's the main resource of this app's URLs.
-router.register(r"", UserViewSet)
+router.register("", UserViewSet)
 
 urlpatterns = [path("", include(router.urls))]

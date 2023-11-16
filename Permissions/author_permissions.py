@@ -6,10 +6,14 @@ What operations they have access to and what they can do.
 from rest_framework import permissions
 
 
-class AllowOwner(permissions.BasePermission):
+class IsAuthor(permissions.BasePermission):
     """
-    Custom permission to only allow owners of an object to edit or delete it.
+    The object must contain the author attribute.
+
+    Custom permission that only allows an author of the object
+    to perform CRUD on that object.
+    For example, author of a post or a comment.
     """
 
     def has_object_permission(self, request, view, obj):
-        return True
+        return obj.author == request.user

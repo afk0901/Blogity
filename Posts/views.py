@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+
+from Permissions.author_permissions import IsAuthor
 from Posts.models import Post, Comment
 from Posts.serializers import PostSerializer, PostWithCommentsSerializer
 from Posts.serializers import CommentSerializer
@@ -11,6 +13,7 @@ class PostViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("id", "title", "author__username", "author")
     http_method_names = ['get', 'post', 'put', 'delete']
+    permission_classes = [IsAuthor]
 
     def get_serializer_class(self):
         # Switching serializers depending on if include_comments query parameter
@@ -29,3 +32,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'put', 'delete']
+    # Using Django filter backend to filter by query-parameters from the URL
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ("id", "author__username", "author", "publish_date")
