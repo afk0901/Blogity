@@ -1,11 +1,11 @@
-from django.test import TestCase
+from unittest import TestCase
 from rest_framework.test import APIRequestFactory
 from Permissions.author_permissions import IsAuthor
 from Users.models import CustomUser
 from unittest.mock import Mock
 
 
-class CustomPermissionTestCase(TestCase):
+class CustomPermissionTest(TestCase):
 
     def setUp(self):
         # Creating two distinct users
@@ -30,3 +30,46 @@ class CustomPermissionTestCase(TestCase):
         request = self.factory.get('/some-url/')
         request.user = self.other_user
         self.assertFalse(self.permission.has_object_permission(request, "", self.author_object))
+
+    def test_has_permission_owner(self):
+        # User should be the author of the object and to be able to have full list
+        # permissions if so.
+
+        # Simulating creating a blog post
+        request = self.factory.post('/some-url/', {
+            "author": self.user.id,
+            "title": "",
+            "content": ""
+        })
+        request.user = self.user
+        self.assertTrue(self.permission.has_permission(request, ""))
+
+    # def test_has_permission_not_owner(self):
+    #     # User is not the author of the object and not to be able to have list
+    #     # permissions.
+    #
+    #     request = self.factory.post('/some-url/', {
+    #         "author": self.user.id,
+    #         "title": "",
+    #         "content": ""
+    #     })
+    #
+    #     request.user = self.other_user
+    #     request.data = {
+    #         "author": self.user.id,
+    #         "title": "",
+    #         "content": ""
+    #     }
+    #     self.assertFalse(self.permission.has_permission(request.POST, ""))
+
+    # def test_has_permission_get_true_user(self):
+    #     # Because everybody should be able to have read access
+    #     request = self.factory.get('/some-url/')
+    #     request.user = self.user
+    #     self.assertTrue(self.permission.has_permission(request, ""))
+    #
+    # def test_has_permission_get_true_other_user(self):
+    #     # Because everybody should be able to have read access
+    #     request = self.factory.get('/some-url/')
+    #     request.user = self.other_user
+    #     self.assertTrue(self.permission.has_permission(request, ""))
