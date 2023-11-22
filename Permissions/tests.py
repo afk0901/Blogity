@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 from Permissions.author_permissions import IsAuthor
 from Users.models import CustomUser
@@ -16,8 +16,27 @@ class CustomPermissionTest(TestCase):
         # Faking the object. Object should have the author as some user
         self.author_object = Mock()
         self.author_object.author = self.user
+
         # REST API request factory
         self.factory = APIRequestFactory()
+
+    def post_request(self, user):
+        """
+         Simulates a post-request without performing one.
+        :param user: The user performing the request
+        :return: Post request with an extra data attribute
+        """
+        data = {
+            "author": self.user.id,  # The original author, defined in the setUp
+            "title": "",
+            "content": ""
+        }
+
+        request = self.factory.post('/some-url/')
+        # The data is kept in an extra data attribute when the permission methods are called.
+        request.data = data
+        request.user = user
+        return request
 
     def test_has_object_permission_owner(self):
         # User should have full permission over the object if the user is the author
@@ -33,43 +52,26 @@ class CustomPermissionTest(TestCase):
 
     def test_has_permission_owner(self):
         # User should be the author of the object and to be able to have full list
-        # permissions if so.
+        # permissions.
+        request = self.post_request(self.user)
+        self.assertTrue(self.permission.has_permission(request, ""))
 
-        # Simulating creating a blog post
-        request = self.factory.post('/some-url/', {
-            "author": self.user.id,
-            "title": "",
-            "content": ""
-        })
+    def test_has_permission_not_owner(self):
+        # User is not the author of the object and not to be able to have list
+        # permissions.
+
+        request = self.post_request(self.other_user)
+        self.assertFalse(self.permission.has_permission(request, ""))
+
+    def test_has_permission_get_true_user(self):
+        # Because everybody should be able to have read access
+        request = self.factory.get('/some-url/')
         request.user = self.user
         self.assertTrue(self.permission.has_permission(request, ""))
 
-    # def test_has_permission_not_owner(self):
-    #     # User is not the author of the object and not to be able to have list
-    #     # permissions.
-    #
-    #     request = self.factory.post('/some-url/', {
-    #         "author": self.user.id,
-    #         "title": "",
-    #         "content": ""
-    #     })
-    #
-    #     request.user = self.other_user
-    #     request.data = {
-    #         "author": self.user.id,
-    #         "title": "",
-    #         "content": ""
-    #     }
-    #     self.assertFalse(self.permission.has_permission(request.POST, ""))
-
-    # def test_has_permission_get_true_user(self):
-    #     # Because everybody should be able to have read access
-    #     request = self.factory.get('/some-url/')
-    #     request.user = self.user
-    #     self.assertTrue(self.permission.has_permission(request, ""))
-    #
-    # def test_has_permission_get_true_other_user(self):
-    #     # Because everybody should be able to have read access
-    #     request = self.factory.get('/some-url/')
-    #     request.user = self.other_user
-    #     self.assertTrue(self.permission.has_permission(request, ""))
+    def test_has_permission_get_true_other_user(self):
+        # Because everybody should be able to have read access, not just the user that
+        # is the author
+        request = self.factory.get('/some-url/')
+        request.user = self.other_user
+        self.assertTrue(self.permission.has_permission(request, ""))

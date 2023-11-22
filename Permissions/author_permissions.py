@@ -27,8 +27,8 @@ class IsAuthor(permissions.BasePermission):
         granting permission, otherwise False, not granting
         permissions.
         """
-        # DEBUG IT AND WRITE THE SAME OBJECT IN THE TESTS!
-        if request.data:
+        # request only has the data attribute if it's a POST request
+        if hasattr(request, 'data'):
             # bool(request.user and request.user.is_authenticated)
             return request.data["author"] == request.user.id
         return True
