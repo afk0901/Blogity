@@ -29,8 +29,9 @@ class IsAuthor(permissions.BasePermission):
         """
         # request only has the data attribute if it's a POST request
         if hasattr(request, 'data'):
-            # bool(request.user and request.user.is_authenticated)
-            return request.data["author"] == request.user.id
+            if 'author' in request.data:
+                # bool(request.user and request.user.is_authenticated)
+                return request.data["author"] == request.user.id
         return True
 
     def has_object_permission(self, request, view, obj):

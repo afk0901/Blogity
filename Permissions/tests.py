@@ -42,12 +42,16 @@ class CustomPermissionTest(TestCase):
         # User should have full permission over the object if the user is the author
         request = self.factory.get('/some-url/')
         request.user = self.user
+        # Even tho this is a get request, the data attribute will be included
+        # leading to a 500 error if it does not contain the desired key.
+        request.data = {}
         self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))
 
     def test_has_object_permission_not_owner(self):
         # User should not have full permission over the object if the user is not the author
         request = self.factory.get('/some-url/')
         request.user = self.other_user
+        request.data = {}
         self.assertFalse(self.permission.has_object_permission(request, "", self.author_object))
 
     def test_has_permission_owner(self):
@@ -67,6 +71,7 @@ class CustomPermissionTest(TestCase):
         # Because everybody should be able to have read access
         request = self.factory.get('/some-url/')
         request.user = self.user
+        request.data = {}
         self.assertTrue(self.permission.has_permission(request, ""))
 
     def test_has_permission_get_true_other_user(self):
@@ -74,4 +79,5 @@ class CustomPermissionTest(TestCase):
         # is the author
         request = self.factory.get('/some-url/')
         request.user = self.other_user
+        request.data = {}
         self.assertTrue(self.permission.has_permission(request, ""))
