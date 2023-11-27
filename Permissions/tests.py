@@ -1,16 +1,24 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
 from Permissions.author_permissions import IsAuthor
-from Users.models import CustomUser
 from unittest.mock import Mock
 
 
-class CustomPermissionTest(TestCase):
+class CustomPermissionTest(SimpleTestCase):
+
+    """
+    Unit tests the custom permission classes.
+    """
 
     def setUp(self):
-        # Creating two distinct users
-        self.user = CustomUser.objects.create_user(username='user', password='pass')
-        self.other_user = CustomUser.objects.create_user(username='other_user', password='pass')
+        # Creating two distinct mock users
+        self.user = Mock()
+        self.other_user = Mock()
+
+        # Set attributes if needed, e.g., username or id, to differentiate them
+        self.user.username = 'user'
+        self.other_user.username = 'other_user'
+
         self.permission = IsAuthor()
 
         # Faking the object. Object should have the author as some user
