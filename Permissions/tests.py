@@ -88,13 +88,13 @@ class CustomPermissionTest(SimpleTestCase):
         self.assertTrue(self.permission.has_permission(request, ""))
 
     def test_has_permission_get_true_true_user_details(self):
-        request = self.factory.get(self.detail_view_url )
+        request = self.factory.get(self.detail_view_url)
         request.user = self.user
         request.data = {}
         self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))
 
     def test_has_permission_get_true_true_other_user_details(self):
-        request = self.factory.get(self.detail_view_url )
+        request = self.factory.get(self.detail_view_url)
         request.user = self.other_user
         request.data = {}
         self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))

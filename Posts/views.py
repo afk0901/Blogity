@@ -32,6 +32,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'put', 'delete']
+    permission_classes = [IsAuthorAnyRead]
     # Using Django filter backend to filter by query-parameters from the URL
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("id", "author__username", "author", "publish_date")
