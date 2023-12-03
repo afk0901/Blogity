@@ -13,6 +13,8 @@ class IsAuthor(permissions.BasePermission):
     Custom permission that only allows an author of the object
     to modify the object or create a new object,
     For example, author of a post or a comment.
+
+    GET requests will always pass as anybody can read the object.
     """
 
     def has_permission(self, request, view):
@@ -36,8 +38,11 @@ class IsAuthor(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         """
-        Preventing a user that is not the author of a object,
-        to modify it, on object level such as in details views and such,
+        Preventing a user that is not the author of an object,
+        to modify the object.
+
+        GET requests will always pass the check as anybody can read
+        the object.
 
         :param request: The incoming request object
         :param view: The view we are working with
@@ -46,4 +51,9 @@ class IsAuthor(permissions.BasePermission):
         granting permission, otherwise False, not granting
         permissions.
         """
-        return obj.author == request.user
+
+        # Allow GET requests without authorization
+        if request.method == 'GET':
+            return True
+        else:
+            return obj.author == request.user

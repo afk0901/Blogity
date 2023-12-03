@@ -55,3 +55,4 @@ class PostViewSetTestCase(SimpleTestCase):
 
         self.viewset.get_queryset()
         mock_objects_all.assert_called_once()
+
