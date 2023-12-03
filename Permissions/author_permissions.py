@@ -6,7 +6,7 @@ What operations they have access to and what they can do.
 from rest_framework import permissions
 
 
-class IsAuthor(permissions.BasePermission):
+class IsAuthorAnyRead(permissions.BasePermission):
     """
     The object must contain the author attribute.
 

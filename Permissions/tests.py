@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
-from Permissions.author_permissions import IsAuthor
+from Permissions.author_permissions import IsAuthorAnyRead
 from unittest.mock import Mock
 
 
@@ -19,7 +19,7 @@ class CustomPermissionTest(SimpleTestCase):
         self.user.username = 'user'
         self.other_user.username = 'other_user'
 
-        self.permission = IsAuthor()
+        self.permission = IsAuthorAnyRead()
 
         # Faking the object. Object should have the author as some user
         self.author_object = Mock()
