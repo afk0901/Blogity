@@ -29,7 +29,11 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_pk')
+        return Comment.objects.filter(post_id=post_id)
+
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'put', 'delete']
     permission_classes = [IsAuthorAnyRead]

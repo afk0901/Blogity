@@ -8,7 +8,7 @@ router = DefaultRouter()
 router.register("", PostViewSet, basename="posts")
 
 
-posts_router = routers.NestedSimpleRouter(router, "", lookup="posts")
+posts_router = routers.NestedSimpleRouter(router, "", lookup="post")
 posts_router.register("comments", CommentViewSet, basename="posts-comments")
 
 
