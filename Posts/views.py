@@ -10,7 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 class PostViewSet(viewsets.ModelViewSet):
 
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ("title",)
+    filterset_fields = ("title", )
     http_method_names = ['get', 'post', 'put', 'delete']
     permission_classes = [IsAuthorAnyRead]
 

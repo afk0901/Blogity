@@ -29,11 +29,8 @@ class IsAuthorAnyRead(permissions.BasePermission):
         granting permission, otherwise False, not granting
         permissions.
         """
-        # request only has the data attribute if it's a POST request
-        if hasattr(request, 'data'):
-            if 'author' in request.data:
-                # bool(request.user and request.user.is_authenticated)
-                return request.data["author"] == request.user.id
+        if 'author' in request.data and request.method == 'POST':
+            return request.data["author"] == request.user.id
         return True
 
     def has_object_permission(self, request, view, obj):
@@ -52,7 +49,6 @@ class IsAuthorAnyRead(permissions.BasePermission):
         permissions.
         """
 
-        # Allow GET requests without authorization
         if request.method == 'GET':
             return True
         else:

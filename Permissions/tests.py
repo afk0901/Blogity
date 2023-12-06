@@ -39,13 +39,12 @@ class CustomPermissionTest(SimpleTestCase):
         :return: Post request with an extra data attribute
         """
         data = {
-            "author": self.user.id,  # The original author, defined in the setUp
+            "author": self.user.id,
             "title": "",
             "content": ""
         }
 
         request = self.factory.post(self.list_view_url)
-        # The data is kept in an extra data attribute when the permission methods are called.
         request.data = data
         request.user = user
         return request
@@ -76,7 +75,12 @@ class CustomPermissionTest(SimpleTestCase):
         # Because everybody should be able to have read access
         request = self.factory.get(self.list_view_url)
         request.user = self.user
-        request.data = {}
+        # We put in some author data because it should not matter in this case
+        # if the consumer sends data with the GET request.
+        request.data = {"author": 18,
+                        "post": 4,
+                        "content": "Esta bem!"
+                        }
         self.assertTrue(self.permission.has_permission(request, ""))
 
     def test_has_permission_get_true_other_user(self):
@@ -84,6 +88,15 @@ class CustomPermissionTest(SimpleTestCase):
         # is the author
         request = self.factory.get(self.list_view_url)
         request.user = self.other_user
+        request.data = {}
+        self.assertTrue(self.permission.has_permission(request, ""))
+
+    def test_has_permission_get_true_user_request_data_but_no_author(self):
+        # Because everybody should be able to have read access
+        request = self.factory.get(self.list_view_url)
+        request.user = self.user
+        # We put in some author data because it should not matter in this case
+        # if the consumer sends data with the GET request.
         request.data = {}
         self.assertTrue(self.permission.has_permission(request, ""))
 
