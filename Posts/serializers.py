@@ -14,10 +14,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ["id", "author", "post", "content", "publish_date"]
 
 
-# Serializes all posts with their related comments
 class PostWithCommentsSerializer(serializers.ModelSerializer):
-    # Readonly because if a consumer wants to create posts or comments, it would do it on /posts or /comments endpoints
-
     comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:

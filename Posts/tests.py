@@ -11,10 +11,6 @@ This test suite tests the PostViewSet
 
 class PostViewSetTestGetSerializer(SimpleTestCase):
 
-    """
-       Testing if the correct serializer is returned when the get_serializer class is called.
-    """
-
     def setUp(self):
         # Create a mock request with query_params
         self.mock_request = type('MockRequest', (), {})()
@@ -42,14 +38,12 @@ class PostViewSetTestCase(SimpleTestCase):
 
     @patch('Posts.models.Post.post_manager.get_all_posts_and_related_comments')
     def test_get_queryset_return_related_comments(self, mock_get_all_posts_and_related_comments):
-        # Mock request with query_params set to include_comments=true
         self.viewset.request.query_params = {'include_comments': 'true'}
         self.viewset.get_queryset()
         mock_get_all_posts_and_related_comments.assert_called_once()
 
     @patch('Posts.models.Post.objects.all')
     def test_get_queryset_return_all_posts(self, mock_objects_all):
-        # Reset mocks and test without include_comments
         mock_objects_all.reset_mock()
         self.viewset.request.query_params = {}
 

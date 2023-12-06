@@ -4,7 +4,6 @@ from Posts.views import PostViewSet, CommentViewSet
 from rest_framework_nested import routers
 
 router = DefaultRouter()
-# Registering with an empty prefix since it's the main resource of this app's URLs.
 router.register("", PostViewSet, basename="posts")
 
 
