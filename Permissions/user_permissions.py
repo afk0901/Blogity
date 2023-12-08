@@ -7,9 +7,10 @@ or herself/himself
 from rest_framework import permissions
 
 
-class CanModifyUser(permissions.BasePermission):
+class UserOnlyModifyOwnAllowRead(permissions.BasePermission):
     """
     Permission to modify the user.
+    But allow everybody to read.
     """
 
     def has_object_permission(self, request, view, obj):

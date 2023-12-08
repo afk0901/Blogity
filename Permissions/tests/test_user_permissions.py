@@ -3,14 +3,14 @@ from unittest.mock import Mock
 from django.contrib.auth.models import AnonymousUser
 from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
-from Permissions.user_permissions import CanModifyUser
+from Permissions.user_permissions import UserOnlyModifyOwnAllowRead
 from Users.models import CustomUser
 
 
-class CanModifyUserTest(SimpleTestCase):
+class UserOnlyModifyOwnAllowReadTest(SimpleTestCase):
 
     def setUp(self):
-        self.permission = CanModifyUser()
+        self.permission = UserOnlyModifyOwnAllowRead()
         self.factory = APIRequestFactory()
         self.detail_view_url = '/some-url/1/'
         self.data = {
