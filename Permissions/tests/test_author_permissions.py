@@ -4,10 +4,11 @@ from Permissions.author_permissions import IsAuthorAnyRead
 from unittest.mock import Mock
 
 
-class CustomPermissionTest(SimpleTestCase):
+class AuthorPermissionTest(SimpleTestCase):
 
     """
-    Unit tests the custom permission classes.
+    Unit tests the custom permission classes for the
+    author of a blog post or blog comment.
     """
 
     def setUp(self):
