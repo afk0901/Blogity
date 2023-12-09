@@ -11,11 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "first_name", "last_name", "password"]
 
     def create(self, validated_data):
+        # Ensuring the password will be hashed. The serializer does not do so be default.
         user = self.User.objects.create_user(**validated_data)
         return user
 
-    #TODO: Implement Put so that the password does get hashed
-
-
-
-
+    def update(self, instance, validated_data):
+        # Ensuring the password will be hashed. The serializer does not do so be default.
+        instance.set_password(validated_data['password'])
+        return instance
