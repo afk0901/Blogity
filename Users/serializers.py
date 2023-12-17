@@ -4,7 +4,6 @@ from Users.models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
-    User = get_user_model()
 
     class Meta:
         model = CustomUser
@@ -14,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
         # Ensuring the password will be hashed. The serializer does not do so be default.
         # Note to self: No value in unit test this as it would only test the mock (user).
         # There is no control logic.
-        user = self.User.objects.create_user(**validated_data)
+        User = get_user_model()
+        user = User.objects.create_user(**validated_data)
         return user
 
     def update(self, instance, validated_data):
