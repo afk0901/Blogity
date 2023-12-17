@@ -12,11 +12,9 @@ class AuthorPermissionTest(SimpleTestCase):
     """
 
     def setUp(self):
-        # Creating two distinct mock users
         self.user = Mock()
         self.other_user = Mock()
 
-        # Set attributes if needed, e.g., username or id, to differentiate them
         self.user.username = 'user'
         self.other_user.username = 'other_user'
 
@@ -112,4 +110,3 @@ class AuthorPermissionTest(SimpleTestCase):
         request.user = self.other_user
         request.data = {}
         self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))
-
