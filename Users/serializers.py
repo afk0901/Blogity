@@ -11,8 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Ensuring the password will be hashed. The serializer does not do so be default.
+
         # Note to self: No value in unit test this as it would only test the mock (user).
         # There is no control logic.
+
         User = get_user_model()
         user = User.objects.create_user(**validated_data)
         return user
