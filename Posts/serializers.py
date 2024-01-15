@@ -5,13 +5,13 @@ from Posts.models import Comment, Post
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ["id", "author", "title", "content"]
+        fields = ["id", "author_id", "title", "content"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ["id", "author", "post", "content", "publish_date"]
+        fields = ["id", "author_id", "post", "content", "publish_date"]
 
 
 class PostWithCommentsSerializer(serializers.ModelSerializer):
@@ -19,4 +19,4 @@ class PostWithCommentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ["id", "title", "content", "author", "publish_date", "comments"]
+        fields = ["id", "title", "content", "author_id", "publish_date", "comments"]

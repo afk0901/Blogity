@@ -11,8 +11,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
     The object must contain the author attribute.
 
     Custom permission that only allows an author of the object
-    to modify the object or create a new object,
-    For example, author of a post or a comment.
+    to modify the object or create a new object.
 
     GET requests will always pass as anybody can read the object.
     """
@@ -29,8 +28,8 @@ class IsAuthorAnyRead(permissions.BasePermission):
         granting permission, otherwise False, not granting
         permissions.
         """
-        if 'author' in request.data and request.method == 'POST':
-            return request.data["author"] == request.user.id
+        if 'author_id' in request.data and request.method == 'POST':
+            return request.data["author_id"] == request.user.id
         return True
 
     def has_object_permission(self, request, view, obj):
@@ -52,4 +51,4 @@ class IsAuthorAnyRead(permissions.BasePermission):
         if request.method == 'GET':
             return True
         else:
-            return obj.author == request.user
+            return obj.author_id == request.user

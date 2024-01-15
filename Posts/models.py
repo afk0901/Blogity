@@ -10,8 +10,8 @@ class PostManager(models.Manager):
 
 
 class Post(models.Model):
-    author = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="author"
+    author_id = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="author_id"
     )
     title = models.CharField(max_length=100)
     content = models.TextField()
@@ -26,7 +26,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
-    author = models.ForeignKey(
+    author_id = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="users"
     )
     content = models.TextField()

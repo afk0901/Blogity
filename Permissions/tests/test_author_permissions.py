@@ -16,13 +16,15 @@ class AuthorPermissionTest(SimpleTestCase):
         self.other_user = Mock()
 
         self.user.username = 'user'
+        self.user.id = 1
         self.other_user.username = 'other_user'
+        self.other_user.id = 2
 
         self.permission = IsAuthorAnyRead()
 
         # Faking the object. Object should have the author as some user
         self.author_object = Mock()
-        self.author_object.author = self.user
+        self.author_object.author_id = self.user.id
 
         # REST API request factory
         self.factory = APIRequestFactory()
@@ -38,7 +40,7 @@ class AuthorPermissionTest(SimpleTestCase):
         :return: Post request with an extra data attribute
         """
         data = {
-            "author": self.user.id,
+            "author_id": self.user.id,
             "title": "",
             "content": ""
         }
@@ -63,9 +65,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request = self.post_request(self.user)
         self.assertTrue(self.permission.has_permission(request, ""))
 
-    def test_has_permission_not_owner(self):
-        # User is not the author of the object and not to be able to have list
-        # permissions.
+    def test_has_permission_not_owner_deny_add_to_list(self):
 
         request = self.post_request(self.other_user)
         self.assertFalse(self.permission.has_permission(request, ""))
