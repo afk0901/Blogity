@@ -1,8 +1,6 @@
-from unittest.mock import patch
+from django.test import TestCase
 
-from django.test import SimpleTestCase, TestCase
-from Posts.views import PostViewSet
-from Posts.serializers import PostWithCommentsSerializer, PostSerializer
+from Posts.models import Post
 from Users.tests import TestUser
 from rest_framework.test import APIClient
 
@@ -25,8 +23,9 @@ class TestBlogPost:
         }
 
     @staticmethod
-    def create_blog_post_with_authenticated_user_response():
+    def create_test_user_authenticate_and_create_blog_post():
         """
+        Creates a new user, authenticates the user and creates ablog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
         """
         user_and_auth_response = TestUser.create_test_user_and_authenticate_response()
@@ -45,7 +44,7 @@ class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
 
     def setUp(self):
         created_post_with_authenticated_user_response_dict = (TestBlogPost.
-                                                              create_blog_post_with_authenticated_user_response())
+                                                              create_test_user_authenticate_and_create_blog_post())
 
         self.response = created_post_with_authenticated_user_response_dict["response"]
         self.response_data = self.response.data
@@ -58,3 +57,24 @@ class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
         self.assertEqual(self.request_data["author_id"], self.response_data["author_id"])
         self.assertEqual(self.request_data["title"], self.response_data["title"])
         self.assertEqual(self.request_data["content"], self.response_data["content"])
+
+
+class AuthenticatedUserGetIndividualPostSuccessfullyTest(TestCase):
+
+    # Using setUpClass because we don't want to create a new user many times.
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        TestBlogPost.create_test_user_authenticate_and_create_blog_post()
+        client = APIClient()
+        # ID does not necessary start at 1, so taking the last post created.
+        post_id = Post.objects.last().id
+        cls.response = client.get(f'/api/posts/{post_id}/')
+
+    def test_post_retrieved_successfully_status_code(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_post_retrieved_successfully(self):
+        self.assertContains(self.response, "author_id")
+        self.assertContains(self.response, "title")
+        self.assertContains(self.response, "content")
