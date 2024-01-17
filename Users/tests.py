@@ -29,25 +29,28 @@ class TestUser:
         return {"post_data": post_data, "response": client.post('/api/users/', post_data, format='json')}
 
     @staticmethod
-    def authenticate(username: str, password: str):
+    def authentication_response(username: str, password: str):
         # Authenticate
         client = APIClient()
-        client.post('api/token/', {'username': username, 'password': password}, format='json')
+        response = client.post('/api/token/', {'username': username, 'password': password}, format='json')
+        return response
 
     @staticmethod
     def create_test_user_and_authenticate_response():
-        """
-        :return: The authentication response
-        """
+
         # Create the user
         create_test_user_post_data_and_response = TestUser.create_test_user_post_data_and_response()
         user_post_data = create_test_user_post_data_and_response["post_data"]
 
         # Authenticate
-        request_data = {"username": user_post_data["username"], "password": user_post_data["password"]}
-        client = APIClient()
-        auth_response = client.post('/api/token/', request_data, format='json')
-        return {"user":  create_test_user_post_data_and_response["response"].data, "response": auth_response}
+        authentication_response = TestUser.authentication_response(username=user_post_data["username"],
+                                                                   password=user_post_data["password"])
+
+        authentication_token = authentication_response.data["access"]
+
+        return {"user":  create_test_user_post_data_and_response["response"].data,
+                "authentication_token": authentication_token,
+                "response": authentication_response}
 
 
 class CreatedUserSuccessfullyTestCases(TestCase):

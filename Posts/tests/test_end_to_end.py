@@ -12,9 +12,9 @@ This test suite tests the PostViewSet
 class TestBlogPost:
 
     @staticmethod
-    def blog_post_test_data(blog_post_author_id):
+    def blog_post_test_data(blog_post_author_id: int):
         """
-        :return: Dict of user test data
+        :return: Dict of blog test data
         """
         return {
             "author_id": blog_post_author_id,
@@ -29,15 +29,15 @@ class TestBlogPost:
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
         """
         user_and_auth_response = TestUser.create_test_user_and_authenticate_response()
-        auth_response = user_and_auth_response['response']
-        token = auth_response.data['access']
+        token = user_and_auth_response["authentication_token"]
+
         client = APIClient(headers={"Authorization": "Bearer " + token})
 
         user_id = user_and_auth_response['user']['id']
         request_data = TestBlogPost.blog_post_test_data(blog_post_author_id=user_id)
 
         response = client.post('/api/posts/', data=request_data, format='json')
-        return {"request_data": request_data, "response": response}
+        return {"request_data": request_data, "response": response, "authentication_token": token}
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
@@ -57,6 +57,33 @@ class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
         self.assertEqual(self.request_data["author_id"], self.response_data["author_id"])
         self.assertEqual(self.request_data["title"], self.response_data["title"])
         self.assertEqual(self.request_data["content"], self.response_data["content"])
+
+
+class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        create_test_user_authenticate_and_create_blog_post = (TestBlogPost.
+                                                              create_test_user_authenticate_and_create_blog_post())
+        cls.post_id = Post.objects.last().id
+        cls.request_data = create_test_user_authenticate_and_create_blog_post["request_data"]
+        cls.token = create_test_user_authenticate_and_create_blog_post["authentication_token"]
+
+    def test_update_title(self):
+        # old_request_data = self.request_data
+        # self.request_data['title'] = "Updated title"
+        client = APIClient(headers={"Authorization": "Bearer " + self.token})
+        response = client.put(f'/api/posts/{self.post_id}/',
+                               data=self.request_data, content_type='application/json')
+
+        #self.assertNotEqual(old_request_data["title"], response.data["title"])
+        self.assertEqual(response.status_code, 201)
+
+    def test_update_content_status_code(self):
+        ...
+
+    def test_update_content(self):
+        ...
 
 
 class AuthenticatedUserGetIndividualPostSuccessfullyTest(TestCase):
