@@ -1,5 +1,6 @@
 from rest_framework.test import APIClient
 from django.test import TestCase
+from http import HTTPStatus
 
 
 class TestUser:
@@ -64,7 +65,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
         self.request_data = create_test_user_post_data_and_response["post_data"]
 
     def test_created_user_status(self):
-        self.assertEqual(self.response.status_code, 201)
+        self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
 
     def test_created_user_successfully_response(self):
         self.assertEqual(self.response.data['username'], self.request_data["username"])
@@ -86,5 +87,5 @@ class AuthenticatedUserTestCases(TestCase):
         self.auth_response = TestUser.create_test_user_and_authenticate_response()["response"]
 
     def test_user_created_and_authenticated(self):
-        self.assertContains(self.auth_response, 'access', status_code=200)
-        self.assertContains(self.auth_response, 'refresh', status_code=200)
+        self.assertContains(self.auth_response, 'access', status_code=HTTPStatus.OK)
+        self.assertContains(self.auth_response, 'refresh', status_code=HTTPStatus.OK)
