@@ -1,4 +1,4 @@
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase
 
 from Posts.models import Post
 from Users.tests import TestUser
@@ -68,23 +68,27 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         create_test_user_authenticate_and_create_blog_post = (TestBlogPost.
                                                               create_test_user_authenticate_and_create_blog_post())
         post_id = Post.objects.last().id
+        token = create_test_user_authenticate_and_create_blog_post["authentication_token"]
         cls.request_data = create_test_user_authenticate_and_create_blog_post["request_data"]
-        cls.token = create_test_user_authenticate_and_create_blog_post["authentication_token"]
         cls.update_url = f'/api/posts/{post_id}/'
+        cls.update_client = APIClient(headers={"Authorization": "Bearer " + token})
 
     def test_update_title(self):
-        client = APIClient(headers={"Authorization": "Bearer " + self.token})
         request_data = self.request_data.copy()
         request_data["title"] = "Updated title"
-        new_request_data = request_data
-
-        response = client.put(self.update_url, data=json.dumps(new_request_data), content_type='application/json')
+        response = self.update_client.put(self.update_url, data=json.dumps(request_data),
+                                          content_type='application/json')
 
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(self.request_data["title"], response.data["title"])
 
     def test_update_content(self):
-        ...
+        request_data = self.request_data.copy()
+        request_data["content"] = "Updated content"
+        response = self.update_client.put(self.update_url, data=json.dumps(request_data),
+                                          content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(self.request_data["content"], response.data["content"])
 
 
 class AuthenticatedUserGetIndividualPostSuccessfullyTest(TestCase):
