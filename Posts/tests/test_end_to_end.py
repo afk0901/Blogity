@@ -1,8 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from Posts.models import Post
 from Users.tests import TestUser
 from rest_framework.test import APIClient
+import json
 
 """
 This test suite tests the PostViewSet
@@ -17,9 +18,10 @@ class TestBlogPost:
         :return: Dict of blog test data
         """
         return {
+            "id": 2,
             "author_id": blog_post_author_id,
-            "title": "Blog post title",
-            "content": "Blog post content"
+            "title": 'Blog post title',
+            "content": 'Blog post content'
         }
 
     @staticmethod
@@ -59,7 +61,7 @@ class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
         self.assertEqual(self.request_data["content"], self.response_data["content"])
 
 
-class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
+class AuthenticatedUserCreatedUpdatedIndividualPost(TransactionTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -73,17 +75,23 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         # old_request_data = self.request_data
         # self.request_data['title'] = "Updated title"
         client = APIClient(headers={"Authorization": "Bearer " + self.token})
-        response = client.put(f'/api/posts/{self.post_id}/',
-                               data=self.request_data, content_type='application/json')
+        d = {
+        "id": 1,
+        "author_id": 1,
+        "title": "Test changed",
+        "content": "This is a test post"
+        }
+        response = client.put(f'/api/posts/1/',
+                               data=json.dumps(d), content_type='application/json')
 
         #self.assertNotEqual(old_request_data["title"], response.data["title"])
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
 
-    def test_update_content_status_code(self):
-        ...
-
-    def test_update_content(self):
-        ...
+    # def test_update_content_status_code(self):
+    #     ...
+    #
+    # def test_update_content(self):
+    #     ...
 
 
 class AuthenticatedUserGetIndividualPostSuccessfullyTest(TestCase):
