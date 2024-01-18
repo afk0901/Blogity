@@ -5,3 +5,5 @@ djangorestframework
 django-filter
 drf-nested-routers
 djangorestframework-simplejwt
+pytest
+pytest-django

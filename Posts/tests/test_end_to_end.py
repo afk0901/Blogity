@@ -5,6 +5,7 @@ from Users.tests import TestUser
 from rest_framework.test import APIClient
 import json
 from http import HTTPStatus
+import pytest
 
 """
 This test suite tests the PostViewSet.
@@ -90,7 +91,7 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         self.assertNotEqual(self.request_data["content"], response.data["content"])
 
 
-class AuthenticatedUserGetIndividualPostSuccessfullyTest(TestCase):
+class UserGetIndividualPostSuccessfullyTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
