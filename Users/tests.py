@@ -30,28 +30,32 @@ class TestUser:
         return {"post_data": post_data, "response": client.post('/api/users/', post_data, format='json')}
 
     @staticmethod
-    def authentication_response(username: str, password: str):
-        # Authenticate
+    def authenticate_user_client(username: str, password: str):
         client = APIClient()
         response = client.post('/api/token/', {'username': username, 'password': password}, format='json')
-        return response
+        authentication_token = response.data["access"]
+        return {"authentication_response": response,
+                "client": APIClient(headers={"Authorization": "Bearer " + authentication_token}
+                                    )}
 
     @staticmethod
-    def create_test_user_and_authenticate_response():
+    def create_authenticated_test_user():
 
         # Create the user
         create_user_post_data_and_response = TestUser.create_user_post_data_and_response()
         user_post_data = create_user_post_data_and_response["post_data"]
 
         # Authenticate
-        authentication_response = TestUser.authentication_response(username=user_post_data["username"],
-                                                                   password=user_post_data["password"])
+        authenticate_user_client = TestUser.authenticate_user_client(username=user_post_data["username"],
+                                                                     password=user_post_data["password"])
 
-        authentication_token = authentication_response.data["access"]
+        client = authenticate_user_client["client"]
+        authenticate_response = authenticate_user_client["authentication_response"]
 
         return {"user":  create_user_post_data_and_response["response"].data,
-                "authentication_token": authentication_token,
-                "response": authentication_response}
+                "authenticate_response": authenticate_response,
+                "authenticated_client": client
+                }
 
 
 class CreatedUserSuccessfullyTestCases(TestCase):
@@ -84,7 +88,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 class AuthenticatedUserTestCases(TestCase):
 
     def setUp(self):
-        self.auth_response = TestUser.create_test_user_and_authenticate_response()["response"]
+        self.auth_response = TestUser.create_authenticated_test_user()["authenticate_response"]
 
     def test_user_created_and_authenticated(self):
         self.assertContains(self.auth_response, 'access', status_code=HTTPStatus.OK)

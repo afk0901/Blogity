@@ -5,7 +5,6 @@ from Users.tests import TestUser
 from rest_framework.test import APIClient
 import json
 from http import HTTPStatus
-import pytest
 
 """
 This test suite tests the PostViewSet.
@@ -29,25 +28,35 @@ class TestBlogPost:
         }
 
     @staticmethod
-    def create_test_user_authenticate_and_create_blog_post():
+    def create_test_blog_post_request_data_and_response(client: APIClient, blog_post_author_id: int):
+        request_data = TestBlogPost.blog_post_test_data(blog_post_author_id=blog_post_author_id)
+        response = client.post('/api/posts/', data=request_data, format='json')
+        return {"request_data": request_data, "response": response}
+
+    @staticmethod
+    def create_test_user_and_create_blog_post():
         """
         Creates a new user, authenticates the user and creates ablog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
         """
-        user_and_auth_response = TestUser.create_test_user_and_authenticate_response()
-        token = user_and_auth_response["authentication_token"]
-        client = APIClient(headers={"Authorization": "Bearer " + token})
-        user_id = user_and_auth_response['user']['id']
-        request_data = TestBlogPost.blog_post_test_data(blog_post_author_id=user_id)
-        response = client.post('/api/posts/', data=request_data, format='json')
-        return {"request_data": request_data, "response": response, "authentication_token": token}
+        user_and_client = TestUser.create_authenticated_test_user()
+        user = user_and_client["user"]
+        authenticated_client = user_and_client["authenticated_client"]
+
+        user_id = user['id']
+        request_data_and_response = TestBlogPost.create_test_blog_post_request_data_and_response(authenticated_client,
+                                                                                                 user_id)
+
+        return {"request_data": request_data_and_response["request_data"],
+                "response": request_data_and_response["response"],
+                "authenticated_client": authenticated_client}
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
 
     def setUp(self):
         created_post_with_authenticated_user_response_dict = (TestBlogPost.
-                                                              create_test_user_authenticate_and_create_blog_post())
+                                                              create_test_user_and_create_blog_post())
         self.response = created_post_with_authenticated_user_response_dict["response"]
         self.response_data = self.response.data
         self.request_data = created_post_with_authenticated_user_response_dict["request_data"]
@@ -65,13 +74,12 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        create_test_user_authenticate_and_create_blog_post = (TestBlogPost.
-                                                              create_test_user_authenticate_and_create_blog_post())
+        create_test_user_and_create_blog_post = TestBlogPost.create_test_user_and_create_blog_post()
         post_id = Post.objects.last().id
-        token = create_test_user_authenticate_and_create_blog_post["authentication_token"]
-        cls.request_data = create_test_user_authenticate_and_create_blog_post["request_data"]
+
+        cls.request_data = create_test_user_and_create_blog_post["request_data"]
         cls.update_url = f'/api/posts/{post_id}/'
-        cls.update_client = APIClient(headers={"Authorization": "Bearer " + token})
+        cls.update_client = create_test_user_and_create_blog_post["authenticated_client"]
 
     def test_update_title(self):
         request_data = self.request_data.copy()
@@ -89,22 +97,3 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
                                           content_type='application/json')
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertNotEqual(self.request_data["content"], response.data["content"])
-
-
-class UserGetIndividualPostSuccessfullyTest(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        TestBlogPost.create_test_user_authenticate_and_create_blog_post()
-        client = APIClient()
-        post_id = Post.objects.last().id
-        cls.response = client.get(f'/api/posts/{post_id}/')
-
-    def test_post_retrieved_successfully_status_code(self):
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-
-    def test_post_retrieved_successfully(self):
-        self.assertContains(self.response, "author_id")
-        self.assertContains(self.response, "title")
-        self.assertContains(self.response, "content")

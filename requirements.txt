@@ -1,9 +1,8 @@
 Django~=4.2.6
 psycopg2
 python-decouple
-djangorestframework
-django-filter
+djangorestframework~=3.14.0
+django-filter~=23.3
 drf-nested-routers
 djangorestframework-simplejwt
-pytest
-pytest-django
+parameterized~=0.9.0
