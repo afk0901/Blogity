@@ -5,6 +5,7 @@ from Users.tests import TestUser
 from rest_framework.test import APIClient
 import json
 from http import HTTPStatus
+from parameterized import parameterized_class
 
 """
 This test suite tests the PostViewSet.
@@ -97,3 +98,30 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
                                           content_type='application/json')
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertNotEqual(self.request_data["content"], response.data["content"])
+
+
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
+class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        authenticated_client = TestBlogPost.create_test_user_and_create_blog_post()["authenticated_client"]
+        # Different client depending on if we want to use authorized one or not.
+        if cls.authenticate:
+            client = authenticated_client
+        else:
+            client = APIClient()
+        post_id = Post.objects.last().id
+        cls.response = client.get(f'/api/posts/{post_id}/')
+
+    def test_post_retrieved_successfully_status_code(self):
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+
+    def test_post_retrieved_successfully(self):
+        self.assertContains(self.response, "author_id")
+        self.assertContains(self.response, "title")
+        self.assertContains(self.response, "content")
