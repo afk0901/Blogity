@@ -16,6 +16,11 @@ problems.
 
 
 class TestBlogPost:
+    @staticmethod
+    def setup_user_post_and_client(authenticate: bool):
+        authenticated_client = TestBlogPost.create_test_user_and_create_blog_post()["authenticated_client"]
+        client = authenticated_client if authenticate else APIClient()
+        return client
 
     @staticmethod
     def blog_post_test_data(blog_post_author_id: int):
@@ -37,7 +42,7 @@ class TestBlogPost:
     @staticmethod
     def create_test_user_and_create_blog_post():
         """
-        Creates a new user, authenticates the user and creates ablog post.
+        Creates a new user, authenticates the user and creates a blog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
         """
         user_and_client = TestUser.create_authenticated_test_user()
@@ -45,6 +50,7 @@ class TestBlogPost:
         authenticated_client = user_and_client["authenticated_client"]
 
         user_id = user['id']
+
         request_data_and_response = TestBlogPost.create_test_blog_post_request_data_and_response(authenticated_client,
                                                                                                  user_id)
 
@@ -109,12 +115,7 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        authenticated_client = TestBlogPost.create_test_user_and_create_blog_post()["authenticated_client"]
-        # Different client depending on if we want to use authorized one or not.
-        if cls.authenticate:
-            client = authenticated_client
-        else:
-            client = APIClient()
+        client = TestBlogPost.setup_user_post_and_client(cls.authenticate)
         post_id = Post.objects.last().id
         cls.response = client.get(f'/api/posts/{post_id}/')
 
@@ -125,3 +126,26 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
         self.assertContains(self.response, "author_id")
         self.assertContains(self.response, "title")
         self.assertContains(self.response, "content")
+
+
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
+class CreateUserAndGetAllPostsTest(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        client = TestBlogPost.setup_user_post_and_client(cls.authenticate)
+
+        cls.response = client.get(f'/api/posts/')
+
+    def test_post_retrieved_successfully_status_code(self):
+        ...
+    #     self.assertEqual(self.response.status_code, HTTPStatus.OK)
+    #
+    # def test_post_retrieved_successfully(self):
+    #     self.assertContains(self.response[], "author_id")
+    #     self.assertContains(self.response, "title")
+    #     self.assertContains(self.response, "content")
