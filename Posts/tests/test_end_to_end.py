@@ -26,10 +26,16 @@ class TestBlogPost:
         return client
 
     @staticmethod
-    def create_test_blog_post_request_data_and_response(client: APIClient, user: CustomUser):
-        request_data = model_to_dict(baker.prepare(Post, author_id=user))
-        response = client.post('/api/posts/', data=request_data, format='json')
-        return {"request_data": request_data, "response": response}
+    def create_test_blog_post_request_data_and_response(client: APIClient, user: CustomUser, number_of_posts=1):
+        # Request data and response array are arranged in the same order as the requests are made.
+        request_data_responses = []
+
+        for request_data in range(0, number_of_posts):
+            request_data = model_to_dict(baker.prepare(Post, author_id=user))
+            response = client.post('/api/posts/', data=request_data, format='json')
+            request_data_responses.append({"request_data": request_data, "response": response})
+
+        return request_data_responses
 
     @staticmethod
     def create_test_user_and_create_blog_post():
@@ -41,22 +47,22 @@ class TestBlogPost:
         user = user_and_client["custom_user_instance"]
         authenticated_client = user_and_client["authenticated_client"]
 
-        request_data_and_response = TestBlogPost.create_test_blog_post_request_data_and_response(authenticated_client,
-                                                                                                 user)
+        request_data_and_responses = TestBlogPost.create_test_blog_post_request_data_and_response(authenticated_client,
+                                                                                                  user)
 
-        return {"request_data": request_data_and_response["request_data"],
-                "response": request_data_and_response["response"],
+        return {"request_data_responses": request_data_and_responses,
                 "authenticated_client": authenticated_client}
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
 
     def setUp(self):
-        created_post_with_authenticated_user_response_dict = (TestBlogPost.
-                                                              create_test_user_and_create_blog_post())
-        self.response = created_post_with_authenticated_user_response_dict["response"]
+        created_post_with_authenticated_user_request_response = (TestBlogPost.
+                                                                 create_test_user_and_create_blog_post())[
+                                                                 "request_data_responses"]
+        self.response = created_post_with_authenticated_user_request_response[0]["response"]
         self.response_data = self.response.data
-        self.request_data = created_post_with_authenticated_user_response_dict["request_data"]
+        self.request_data = created_post_with_authenticated_user_request_response[0]["request_data"]
 
     def test_post_created_successfully_status_code(self):
         self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
@@ -72,9 +78,10 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         create_test_user_and_create_blog_post = TestBlogPost.create_test_user_and_create_blog_post()
+        request_data_response = create_test_user_and_create_blog_post["request_data_responses"]
         post_id = Post.objects.last().id
 
-        cls.request_data = create_test_user_and_create_blog_post["request_data"]
+        cls.request_data = request_data_response[0]["request_data"]
         cls.update_url = f'/api/posts/{post_id}/'
         cls.update_client = create_test_user_and_create_blog_post["authenticated_client"]
 
