@@ -48,10 +48,6 @@ class TestBlogPost:
                 "response": request_data_and_response["response"],
                 "authenticated_client": authenticated_client}
 
-    @staticmethod
-    def create_blog_posts_by_same_author(authenticated_client: APIClient, blog_post_author_id: int):
-        ...
-
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
 

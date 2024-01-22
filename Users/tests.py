@@ -3,32 +3,18 @@ from django.test import TestCase
 from http import HTTPStatus
 
 from Users.models import CustomUser
+from model_bakery import baker
+from django.forms import model_to_dict
 
 
 class TestUser:
-
     @staticmethod
-    def user_post_data(user_id: int, username: str) -> dict[str, str]:
+    def create_user_response():
         """
-        :return: Dictionary of strings representing the user POST request data.
+        :return: Post_data and response
         """
-
-        return {
-            "id": user_id,
-            "username": username,
-            "first_name": "Jackie",
-            "last_name": "Test",
-            "password": "12345"
-        }
-
-    @staticmethod
-    def create_user_post_data_and_response():
-        """
-        :return: Dict of post_data and response
-        """
-
         client = APIClient()
-        post_data = TestUser.user_post_data(user_id=1, username="tester")
+        post_data = model_to_dict(baker.prepare(CustomUser))
         return {"post_data": post_data, "response": client.post('/api/users/', post_data, format='json')}
 
     @staticmethod
@@ -44,8 +30,8 @@ class TestUser:
     def create_authenticated_test_user():
 
         # Create the user
-        create_user_post_data_and_response = TestUser.create_user_post_data_and_response()
-        user_post_data = create_user_post_data_and_response["post_data"]
+        create_user_response = TestUser.create_user_response()
+        user_post_data = create_user_response["post_data"]
 
         # Authenticate
         authenticate_user_client = TestUser.authenticate_user_client(username=user_post_data["username"],
@@ -54,7 +40,7 @@ class TestUser:
         client = authenticate_user_client["client"]
         authenticate_response = authenticate_user_client["authentication_response"]
 
-        return {"user_data":  create_user_post_data_and_response["response"].data,
+        return {"user_data":  create_user_response["response"].data,
                 "custom_user_instance": CustomUser.objects.get(username=user_post_data["username"]),
                 "authenticate_response": authenticate_response,
                 "authenticated_client": client
@@ -67,9 +53,9 @@ class CreatedUserSuccessfullyTestCases(TestCase):
     """
 
     def setUp(self):
-        create_user_post_data_and_response = TestUser.create_user_post_data_and_response()
-        self.response = create_user_post_data_and_response["response"]
-        self.request_data = create_user_post_data_and_response["post_data"]
+        create_user_response = TestUser.create_user_response()
+        self.response = create_user_response["response"]
+        self.request_data = create_user_response["post_data"]
 
     def test_created_user_status(self):
         self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
