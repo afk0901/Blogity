@@ -1,11 +1,14 @@
+from django.forms import model_to_dict
 from django.test import TestCase
 
 from Posts.models import Post
+from Users.models import CustomUser
 from Users.tests import TestUser
 from rest_framework.test import APIClient
 import json
 from http import HTTPStatus
 from parameterized import parameterized_class
+from model_bakery import baker
 
 """
 This test suite tests the PostViewSet.
@@ -23,19 +26,8 @@ class TestBlogPost:
         return client
 
     @staticmethod
-    def blog_post_test_data(blog_post_author_id: int):
-        """
-        :return: Dict of blog test data
-        """
-        return {
-            "author_id": blog_post_author_id,
-            "title": 'Blog post title',
-            "content": 'Blog post content'
-        }
-
-    @staticmethod
-    def create_test_blog_post_request_data_and_response(client: APIClient, blog_post_author_id: int):
-        request_data = TestBlogPost.blog_post_test_data(blog_post_author_id=blog_post_author_id)
+    def create_test_blog_post_request_data_and_response(client: APIClient, user: CustomUser):
+        request_data = model_to_dict(baker.prepare(Post, author_id=user))
         response = client.post('/api/posts/', data=request_data, format='json')
         return {"request_data": request_data, "response": response}
 
@@ -46,17 +38,19 @@ class TestBlogPost:
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
         """
         user_and_client = TestUser.create_authenticated_test_user()
-        user = user_and_client["user"]
+        user = user_and_client["custom_user_instance"]
         authenticated_client = user_and_client["authenticated_client"]
 
-        user_id = user['id']
-
         request_data_and_response = TestBlogPost.create_test_blog_post_request_data_and_response(authenticated_client,
-                                                                                                 user_id)
+                                                                                                 user)
 
         return {"request_data": request_data_and_response["request_data"],
                 "response": request_data_and_response["response"],
                 "authenticated_client": authenticated_client}
+
+    @staticmethod
+    def create_blog_posts_by_same_author(authenticated_client: APIClient, blog_post_author_id: int):
+        ...
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):

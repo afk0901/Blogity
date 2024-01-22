@@ -2,6 +2,8 @@ from rest_framework.test import APIClient
 from django.test import TestCase
 from http import HTTPStatus
 
+from Users.models import CustomUser
+
 
 class TestUser:
 
@@ -52,7 +54,8 @@ class TestUser:
         client = authenticate_user_client["client"]
         authenticate_response = authenticate_user_client["authentication_response"]
 
-        return {"user":  create_user_post_data_and_response["response"].data,
+        return {"user_data":  create_user_post_data_and_response["response"].data,
+                "custom_user_instance": CustomUser.objects.get(username=user_post_data["username"]),
                 "authenticate_response": authenticate_response,
                 "authenticated_client": client
                 }
