@@ -1,7 +1,7 @@
 from django.forms import model_to_dict
 from django.test import TestCase
 
-from Posts.models import Post
+from Posts.models import Post, Comment
 from Users.models import CustomUser
 from Users.tests import TestUser
 from rest_framework.test import APIClient
@@ -62,6 +62,15 @@ class TestBlogPost:
 
         return {"request_data_responses": request_data_and_responses,
                 "authenticated_client": authenticated_client}
+
+
+class TestBlogComment:
+
+    @staticmethod
+    def create_comment_post_response(client: APIClient, post: Post, user: CustomUser, comment_id: int):
+        comment = model_to_dict(baker.prepare(Comment, id=comment_id, post=post, author_id=user))
+        resp = client.post(f'/api/posts/1/comments/', data=comment)
+        a = 0
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
@@ -158,3 +167,34 @@ class CreateUserAndGetAllPostsTest(TestCase):
             self.assertIn("author_id", post)
             self.assertIn("title", post)
             self.assertIn("content", post)
+
+
+# @parameterized_class(('authenticate'), [
+#     (True,),
+#     (False,),
+# ])
+class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        post = Post.objects.last()
+        user = baker.prepare(CustomUser, id=1)
+        TestBlogComment.create_comment_post_response(client, post, user, 1)
+        c = Comment.objects.all()
+        cls.response = client.get(f'/api/posts/{post.id}/comments/')
+        a = 1
+
+    def test_comment_retrieved_successfully_status_code(self):
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        # "author_id": 1,
+        # "post": 1,
+        # "content": "This is a test comment"
+
+    def test_comment_retrieved_successfully(self):
+        self.assertEqual(len(self.response.data), 1)
+
+        for comment in self.response.data:
+            self.assertIn("author_id", comment)
+            self.assertIn("post", comment)
+            self.assertIn("content", comment)
