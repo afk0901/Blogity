@@ -20,9 +20,19 @@ problems.
 
 class TestBlogPost:
     @staticmethod
-    def setup_user_post_and_client(authenticate: bool):
-        authenticated_client = TestBlogPost.create_test_user_and_create_blog_post()["authenticated_client"]
-        client = authenticated_client if authenticate else APIClient()
+    def setup_user_posts_and_client(authenticate_client: bool, number_of_posts=1):
+        """
+        Will always create a blog post with authenticated user.
+        Returns authenticated client or not authenticated client
+        depending on the authnticate paramater.
+
+        :param authenticate: If we should return authenticated client or not.
+        :param number_of_posts:
+        :return:
+        """
+        authenticated_client = TestBlogPost.create_test_user_and_create_blog_post(number_of_posts=number_of_posts)[
+            "authenticated_client"]
+        client = authenticated_client if authenticate_client else APIClient()
         return client
 
     @staticmethod
@@ -34,11 +44,10 @@ class TestBlogPost:
             request_data = model_to_dict(baker.prepare(Post, author_id=user))
             response = client.post('/api/posts/', data=request_data, format='json')
             request_data_responses.append({"request_data": request_data, "response": response})
-
         return request_data_responses
 
     @staticmethod
-    def create_test_user_and_create_blog_post():
+    def create_test_user_and_create_blog_post(number_of_posts=1):
         """
         Creates a new user, authenticates the user and creates a blog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
@@ -48,7 +57,8 @@ class TestBlogPost:
         authenticated_client = user_and_client["authenticated_client"]
 
         request_data_and_responses = TestBlogPost.create_test_blog_post_request_data_and_response(authenticated_client,
-                                                                                                  user)
+                                                                                                  user,
+                                                                                                  number_of_posts)
 
         return {"request_data_responses": request_data_and_responses,
                 "authenticated_client": authenticated_client}
@@ -59,7 +69,7 @@ class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
     def setUp(self):
         created_post_with_authenticated_user_request_response = (TestBlogPost.
                                                                  create_test_user_and_create_blog_post())[
-                                                                 "request_data_responses"]
+            "request_data_responses"]
         self.response = created_post_with_authenticated_user_request_response[0]["response"]
         self.response_data = self.response.data
         self.request_data = created_post_with_authenticated_user_request_response[0]["request_data"]
@@ -112,7 +122,7 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        client = TestBlogPost.setup_user_post_and_client(cls.authenticate)
+        client = TestBlogPost.setup_user_posts_and_client(cls.authenticate)
         post_id = Post.objects.last().id
         cls.response = client.get(f'/api/posts/{post_id}/')
 
@@ -134,15 +144,17 @@ class CreateUserAndGetAllPostsTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        client = TestBlogPost.setup_user_post_and_client(cls.authenticate)
+        client = TestBlogPost.setup_user_posts_and_client(cls.authenticate, number_of_posts=3)
 
         cls.response = client.get(f'/api/posts/')
 
     def test_post_retrieved_successfully_status_code(self):
-        ...
-    #     self.assertEqual(self.response.status_code, HTTPStatus.OK)
-    #
-    # def test_post_retrieved_successfully(self):
-    #     self.assertContains(self.response[], "author_id")
-    #     self.assertContains(self.response, "title")
-    #     self.assertContains(self.response, "content")
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+
+    def test_post_retrieved_successfully(self):
+        self.assertEqual(len(self.response.data), 3)
+
+        for post in self.response.data:
+            self.assertIn("author_id", post)
+            self.assertIn("title", post)
+            self.assertIn("content", post)
