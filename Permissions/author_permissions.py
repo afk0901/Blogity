@@ -28,6 +28,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
         granting permission, otherwise False, not granting
         permissions.
         """
+
         if 'author_id' in request.data and request.method == 'POST':
             return request.data["author_id"] == request.user.id
         return True

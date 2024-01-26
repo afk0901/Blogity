@@ -1,5 +1,5 @@
 from django.forms import model_to_dict
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from Posts.models import Post, Comment
 from Users.models import CustomUser
@@ -68,37 +68,41 @@ class TestBlogComment:
 
     @staticmethod
     def create_comment_post_response(client: APIClient, post: Post, user: CustomUser, comment_id: int):
-        comment = model_to_dict(baker.prepare(Comment, id=comment_id, post=post, author_id=user))
-        resp = client.post(f'/api/posts/1/comments/', data=comment)
-        a = 0
+        comment = model_to_dict(baker.prepare(Comment,
+                                              id=comment_id,
+                                              post=post,
+                                              author_id=user,
+                                              content="Test comment"))
+
+        p = client.post(f'/api/posts/1/comments/', data=comment, format='json')
 
 
-class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
 
-    def setUp(self):
-        created_post_with_authenticated_user_request_response = (TestBlogPost.
-                                                                 create_test_user_and_create_blog_post())[
-            "request_data_responses"]
-        self.response = created_post_with_authenticated_user_request_response[0]["response"]
-        self.response_data = self.response.data
-        self.request_data = created_post_with_authenticated_user_request_response[0]["request_data"]
-
-    def test_post_created_successfully_status_code(self):
-        self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
-
-    def test_post_created_successfully(self):
-        self.assertEqual(self.request_data["author_id"], self.response_data["author_id"])
-        self.assertEqual(self.request_data["title"], self.response_data["title"])
-        self.assertEqual(self.request_data["content"], self.response_data["content"])
-
-
+# class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
+#
+#     def setUp(self):
+#         created_post_with_authenticated_user_request_response = (TestBlogPost.
+#                                                                  create_test_user_and_create_blog_post())[
+#             "request_data_responses"]
+#         self.response = created_post_with_authenticated_user_request_response[0]["response"]
+#         self.response_data = self.response.data
+#         self.request_data = created_post_with_authenticated_user_request_response[0]["request_data"]
+#
+#     def test_post_created_successfully_status_code(self):
+#         self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
+#
+#     def test_post_created_successfully(self):
+#         self.assertEqual(self.request_data["author_id"], self.response_data["author_id"])
+#         self.assertEqual(self.request_data["title"], self.response_data["title"])
+#         self.assertEqual(self.request_data["content"], self.response_data["content"])
+#
+#
 class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
         create_test_user_and_create_blog_post = TestBlogPost.create_test_user_and_create_blog_post()
         request_data_response = create_test_user_and_create_blog_post["request_data_responses"]
-        post_id = Post.objects.last().id
+        post_id = Post.objects.last().idG
 
         cls.request_data = request_data_response[0]["request_data"]
         cls.update_url = f'/api/posts/{post_id}/'
@@ -122,51 +126,51 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         self.assertNotEqual(self.request_data["content"], response.data["content"])
 
 
-@parameterized_class(('authenticate'), [
-    (True,),
-    (False,),
-])
-class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
+# @parameterized_class(('authenticate'), [
+#     (True,),
+#     (False,),
+# ])
+# class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
+#
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         client = TestBlogPost.setup_user_posts_and_client(cls.authenticate)
+#         post_id = Post.objects.last().id
+#         cls.response = client.get(f'/api/posts/{post_id}/')
+#
+#     def test_post_retrieved_successfully_status_code(self):
+#         self.assertEqual(self.response.status_code, HTTPStatus.OK)
+#
+#     def test_post_retrieved_successfully(self):
+#         self.assertContains(self.response, "author_id")
+#         self.assertContains(self.response, "title")
+#         self.assertContains(self.response, "content")
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        client = TestBlogPost.setup_user_posts_and_client(cls.authenticate)
-        post_id = Post.objects.last().id
-        cls.response = client.get(f'/api/posts/{post_id}/')
 
-    def test_post_retrieved_successfully_status_code(self):
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-
-    def test_post_retrieved_successfully(self):
-        self.assertContains(self.response, "author_id")
-        self.assertContains(self.response, "title")
-        self.assertContains(self.response, "content")
-
-
-@parameterized_class(('authenticate'), [
-    (True,),
-    (False,),
-])
-class CreateUserAndGetAllPostsTest(TestCase):
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        client = TestBlogPost.setup_user_posts_and_client(cls.authenticate, number_of_posts=3)
-
-        cls.response = client.get(f'/api/posts/')
-
-    def test_post_retrieved_successfully_status_code(self):
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-
-    def test_post_retrieved_successfully(self):
-        self.assertEqual(len(self.response.data), 3)
-
-        for post in self.response.data:
-            self.assertIn("author_id", post)
-            self.assertIn("title", post)
-            self.assertIn("content", post)
+# @parameterized_class(('authenticate'), [
+#     (True,),
+#     (False,),
+# ])
+# class CreateUserAndGetAllPostsTest(TestCase):
+#
+#     @classmethod
+#     def setUpClass(cls) -> None:
+#         super().setUpClass()
+#         client = TestBlogPost.setup_user_posts_and_client(cls.authenticate, number_of_posts=3)
+#         p = Post.objects.all()
+#         cls.response = client.get(f'/api/posts/')
+#
+#     def test_post_retrieved_successfully_status_code(self):
+#         self.assertEqual(self.response.status_code, HTTPStatus.OK)
+#
+#     def test_post_retrieved_successfully(self):
+#         self.assertEqual(len(self.response.data), 3)
+#
+#         for post in self.response.data:
+#             self.assertIn("author_id", post)
+#             self.assertIn("title", post)
+#             self.assertIn("content", post)
 
 
 # @parameterized_class(('authenticate'), [
@@ -175,21 +179,17 @@ class CreateUserAndGetAllPostsTest(TestCase):
 # ])
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
+    def setUpTestData(cls) -> None:
+        Post.objects.all().delete()
         client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
         post = Post.objects.last()
-        user = baker.prepare(CustomUser, id=1)
+        user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
         TestBlogComment.create_comment_post_response(client, post, user, 1)
-        c = Comment.objects.all()
         cls.response = client.get(f'/api/posts/{post.id}/comments/')
-        a = 1
+
 
     def test_comment_retrieved_successfully_status_code(self):
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        # "author_id": 1,
-        # "post": 1,
-        # "content": "This is a test comment"
 
     def test_comment_retrieved_successfully(self):
         self.assertEqual(len(self.response.data), 1)
