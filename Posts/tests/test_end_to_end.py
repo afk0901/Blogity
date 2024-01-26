@@ -180,7 +180,6 @@ class CreateUserAndGetAllPostsTest(TestCase):
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        Post.objects.all().delete()
         client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
         post = Post.objects.last()
         user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
