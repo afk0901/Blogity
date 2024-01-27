@@ -74,17 +74,23 @@ class TestBlogComment:
     @staticmethod
     def create_comment_post_response(client: APIClient,
                                      post: Post,
-                                     comment_id: int,
                                      number_of_comments=1):
         user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
         post_id = post.id
+        request_data_and_responses = []
+
         for _ in range(number_of_comments):
             comment = model_to_dict(baker.prepare(Comment,
-                                                  id=comment_id,
                                                   post=post,
                                                   author_id=user
                                                   ))
-            client.post(f'/api/posts/{post_id}/comments/', data=comment, format='json')
+
+            request_data_and_response = {"request_data": comment,
+                                         "response": client.post(f'/api/posts/{post_id}/comments/',
+                                                                 data=comment, format='json')}
+            request_data_and_responses.append(request_data_and_response)
+
+        return request_data_and_responses
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
@@ -195,7 +201,7 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
         # We do both with parameterization.
         client = Client.get_client(authenticated_client, cls.authenticate)
         post = Post.objects.last()
-        TestBlogComment.create_comment_post_response(authenticated_client, post, 1, number_of_comments=3)
+        TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=3)
         cls.response = client.get(f'/api/posts/{post.id}/comments/')
 
     def test_comment_retrieved_successfully_status_code(self):
@@ -208,3 +214,25 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
             self.assertIn("author_id", comment)
             self.assertIn("post", comment)
             self.assertIn("content", comment)
+
+
+class CreateUserCreatePostCreateComments(TestCase):
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        # To create posts, we need to be authenticated so that's why hardcoded to true.
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        post = Post.objects.last()
+        response_and_request_data = TestBlogComment.create_comment_post_response(authenticated_client, post,
+                                                                                 number_of_comments=1)[0]
+        cls.response = response_and_request_data["response"]
+        cls.request_data = response_and_request_data["request_data"]
+        cls.response_data = response_and_request_data["response"].data
+
+    def test_comment_created_successfully_status_code(self):
+        self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
+
+    def test_comment_created_successfully(self):
+        self.assertEqual(self.request_data["author_id"], self.response_data["author_id"])
+        self.assertEqual(self.request_data["post"], self.response_data["post"])
+        self.assertEqual(self.request_data["content"], self.response_data["content"])
