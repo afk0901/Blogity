@@ -18,21 +18,26 @@ problems.
 """
 
 
+class Client:
+
+    @staticmethod
+    def get_client(authenticated_client: APIClient = APIClient(), authenticate_client: bool = False):
+        return authenticated_client if authenticate_client else APIClient()
+
+
 class TestBlogPost:
     @staticmethod
-    def setup_user_posts_and_client(authenticate_client: bool, number_of_posts=1):
+    def setup_user_posts_and_client(authenticate_client: bool, number_of_posts=1) -> APIClient:
         """
         Will always create a blog post with authenticated user.
-        Returns authenticated client or not authenticated client
-        depending on the authnticate paramater.
 
-        :param authenticate: If we should return authenticated client or not.
-        :param number_of_posts:
+        :param authenticate_client: If we should return an authenticated client or not.
+        :param number_of_posts: Number of posts to be generated with a POST request.
         :return:
         """
         authenticated_client = TestBlogPost.create_test_user_and_create_blog_post(number_of_posts=number_of_posts)[
             "authenticated_client"]
-        client = authenticated_client if authenticate_client else APIClient()
+        client = Client.get_client(authenticated_client, authenticate_client)
         return client
 
     @staticmethod
@@ -67,15 +72,19 @@ class TestBlogPost:
 class TestBlogComment:
 
     @staticmethod
-    def create_comment_post_response(client: APIClient, post: Post, user: CustomUser, comment_id: int):
-        comment = model_to_dict(baker.prepare(Comment,
-                                              id=comment_id,
-                                              post=post,
-                                              author_id=user,
-                                              content="Test comment"))
-
-        client.post(f'/api/posts/1/comments/', data=comment, format='json')
-
+    def create_comment_post_response(client: APIClient,
+                                     post: Post,
+                                     comment_id: int,
+                                     number_of_comments=1):
+        user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
+        post_id = post.id
+        for _ in range(number_of_comments):
+            comment = model_to_dict(baker.prepare(Comment,
+                                                  id=comment_id,
+                                                  post=post,
+                                                  author_id=user
+                                                  ))
+            client.post(f'/api/posts/{post_id}/comments/', data=comment, format='json')
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
@@ -180,18 +189,20 @@ class CreateUserAndGetAllPostsTest(TestCase):
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        # To create posts, we need to be authenticated so that's why hardcoded to true.
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        # We need to decide if we want to test with an authenticated client with bearer token or unauthenticated one.
+        # We do both with parameterization.
+        client = Client.get_client(authenticated_client, cls.authenticate)
         post = Post.objects.last()
-        user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
-        TestBlogComment.create_comment_post_response(client, post, user, 1)
+        TestBlogComment.create_comment_post_response(authenticated_client, post, 1, number_of_comments=3)
         cls.response = client.get(f'/api/posts/{post.id}/comments/')
-
 
     def test_comment_retrieved_successfully_status_code(self):
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
     def test_comment_retrieved_successfully(self):
-        self.assertEqual(len(self.response.data), 1)
+        self.assertEqual(len(self.response.data), 3)
 
         for comment in self.response.data:
             self.assertIn("author_id", comment)
