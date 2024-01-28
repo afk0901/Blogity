@@ -5,6 +5,8 @@ from http import HTTPStatus
 from Users.models import CustomUser
 from model_bakery import baker
 from django.forms import model_to_dict
+from Authentication.client import Client
+from parameterized import parameterized_class
 
 
 class TestUser:
@@ -28,7 +30,6 @@ class TestUser:
 
     @staticmethod
     def create_authenticated_test_user():
-
         # Create the user
         create_user_response = TestUser.create_user_response()
         user_post_data = create_user_response["post_data"]
@@ -40,7 +41,7 @@ class TestUser:
         client = authenticate_user_client["client"]
         authenticate_response = authenticate_user_client["authentication_response"]
 
-        return {"user_data":  create_user_response["response"].data,
+        return {"user_data": create_user_response["response"].data,
                 "custom_user_instance": CustomUser.objects.get(username=user_post_data["username"]),
                 "authenticate_response": authenticate_response,
                 "authenticated_client": client
@@ -82,3 +83,27 @@ class AuthenticatedUserTestCases(TestCase):
     def test_user_created_and_authenticated(self):
         self.assertContains(self.auth_response, 'access', status_code=HTTPStatus.OK)
         self.assertContains(self.auth_response, 'refresh', status_code=HTTPStatus.OK)
+
+
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
+class GetIndividualUser(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        create_authenticated_test_user = TestUser.create_authenticated_test_user()
+        authenticated_client = create_authenticated_test_user["authenticated_client"]
+        client = Client.get_client(authenticated_client, cls.authenticate)
+        user_id = CustomUser.objects.last().id
+        cls.resp = client.get(f"/api/users/{user_id}/")
+
+    def test_get_individual_user_status_code(self):
+        self.assertEqual(self.resp.status_code, HTTPStatus.OK)
+
+    def test_get_individual_user(self):
+        self.assertIn("id", self.resp.data)
+        self.assertIn("username", self.resp.data)
+        self.assertIn("first_name", self.resp.data)
+        self.assertIn("last_name", self.resp.data)

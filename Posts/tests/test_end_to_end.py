@@ -10,21 +10,14 @@ from http import HTTPStatus
 from parameterized import parameterized_class
 from model_bakery import baker
 
+from Authentication.client import Client
+
 """
 This test suite tests the PostViewSet.
 Using setUpClass because we don't want to create a new
 record in the test database many times which may create
 problems.
 """
-
-
-class Client:
-
-    @staticmethod
-    def get_client(authenticated_client: APIClient = APIClient(), authenticate_client: bool = False):
-        return authenticated_client if authenticate_client else APIClient()
-
-
 class TestBlogPost:
     @staticmethod
     def setup_user_posts_and_client(authenticate_client: bool, number_of_posts=1) -> APIClient:
