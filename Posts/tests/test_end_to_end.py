@@ -229,3 +229,20 @@ class CreateUserCreatePostCreateComments(TestCase):
         self.assertEqual(self.request_data["author_id"], self.response_data["author_id"])
         self.assertEqual(self.request_data["post"], self.response_data["post"])
         self.assertEqual(self.request_data["content"], self.response_data["content"])
+
+
+class CreateUserCreatePostDeletePost(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        cls.post_id = Post.objects.last().id
+        cls.resp = authenticated_client.delete(f"/api/posts/{cls.post_id}/")
+
+    def test_delete_post_status(self):
+        self.assertEqual(self.resp.status_code, HTTPStatus.NO_CONTENT)
+
+    def test_post_deleted(self):
+        post_list = list(Post.objects.filter(id=self.post_id))
+        self.assertEqual(post_list, [])
+
