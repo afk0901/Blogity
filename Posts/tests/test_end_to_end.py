@@ -190,8 +190,6 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     def setUpTestData(cls) -> None:
         # To create posts, we need to be authenticated so that's why hardcoded to true.
         authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
-        # We need to decide if we want to test with an authenticated client with bearer token or unauthenticated one.
-        # We do both with parameterization.
         client = Client.get_client(authenticated_client, cls.authenticate)
         post = Post.objects.last()
         TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=3)
@@ -231,6 +229,31 @@ class CreateUserCreatePostCreateComments(TestCase):
         self.assertEqual(self.request_data["content"], self.response_data["content"])
 
 
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
+class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        # To create posts, we need to be authenticated so that's why hardcoded to true.
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        client = Client.get_client(authenticated_client, cls.authenticate)
+        post = Post.objects.last()
+        TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=1)
+        comment_id = Comment.objects.filter(post=post)[0].id
+        cls.response = client.get(f'/api/posts/{post.id}/comments/{comment_id}/')
+
+    def test_comment_retrieved_successfully_status_code(self):
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+
+    def test_comment_retrieved_successfully(self):
+        self.assertContains(self.response, "id")
+        self.assertContains(self.response, "author_id")
+        self.assertContains(self.response, "content")
+
+
 class CreateUserCreatePostDeletePost(TestCase):
 
     @classmethod
@@ -245,4 +268,3 @@ class CreateUserCreatePostDeletePost(TestCase):
     def test_post_deleted(self):
         post_list = list(Post.objects.filter(id=self.post_id))
         self.assertEqual(post_list, [])
-
