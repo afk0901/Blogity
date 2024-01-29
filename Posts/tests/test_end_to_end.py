@@ -18,6 +18,8 @@ Using setUpClass because we don't want to create a new
 record in the test database many times which may create
 problems.
 """
+
+
 class TestBlogPost:
     @staticmethod
     def setup_user_posts_and_client(authenticate_client: bool, number_of_posts=1) -> APIClient:
@@ -26,12 +28,25 @@ class TestBlogPost:
 
         :param authenticate_client: If we should return an authenticated client or not.
         :param number_of_posts: Number of posts to be generated with a POST request.
-        :return:
+        :return: client.
         """
         authenticated_client = TestBlogPost.create_test_user_and_create_blog_post(number_of_posts=number_of_posts)[
             "authenticated_client"]
         client = Client.get_client(authenticated_client, authenticate_client)
         return client
+
+    @staticmethod
+    def setup_user_posts_get_authenticated_client_and_post_id(authenticate_client: bool):
+        """
+        Sets up blog post and the authenticated client if we want the client to be authenticated.
+        :param authenticate_client: Should it return an authenticated client or not?
+        :return: Tuple of a client and post
+        """
+        # To create posts, we need to be authenticated so that's why hardcoded to true.
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        client = Client.get_client(authenticated_client, authenticate_client)
+        post = Post.objects.last()
+        return client, post, authenticated_client
 
     @staticmethod
     def create_test_blog_post_request_data_and_response(client: APIClient, user: CustomUser, number_of_posts=1):
@@ -80,7 +95,7 @@ class TestBlogComment:
 
             request_data_and_response = {"request_data": comment,
                                          "response": client.post(f'/api/posts/{post_id}/comments/',
-                                                                 data=comment, format='json')}
+                                        data=comment, format='json')}
             request_data_and_responses.append(request_data_and_response)
 
         return request_data_and_responses
@@ -166,7 +181,6 @@ class CreateUserAndGetAllPostsTest(TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         client = TestBlogPost.setup_user_posts_and_client(cls.authenticate, number_of_posts=3)
-        p = Post.objects.all()
         cls.response = client.get(f'/api/posts/')
 
     def test_post_retrieved_successfully_status_code(self):
@@ -188,10 +202,10 @@ class CreateUserAndGetAllPostsTest(TestCase):
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        # To create posts, we need to be authenticated so that's why hardcoded to true.
-        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
-        client = Client.get_client(authenticated_client, cls.authenticate)
-        post = Post.objects.last()
+        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(cls.authenticate)
+        authenticated_client = client_and_post_id[2]
+        client = client_and_post_id[0]
+        post = client_and_post_id[1]
         TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=3)
         cls.response = client.get(f'/api/posts/{post.id}/comments/')
 
@@ -237,10 +251,11 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        # To create posts, we need to be authenticated so that's why hardcoded to true.
-        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
-        client = Client.get_client(authenticated_client, cls.authenticate)
-        post = Post.objects.last()
+        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(cls.authenticate)
+        authenticated_client = client_and_post_id[2]
+        client = client_and_post_id[0]
+        post = client_and_post_id[1]
+
         TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=1)
         comment_id = Comment.objects.filter(post=post)[0].id
         cls.response = client.get(f'/api/posts/{post.id}/comments/{comment_id}/')
