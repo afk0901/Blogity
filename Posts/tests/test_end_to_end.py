@@ -331,7 +331,7 @@ class CreateUserCreatePostDeletePost(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=3)
         cls.post_id = Post.objects.last().id
         cls.resp = authenticated_client.delete(f"/api/posts/{cls.post_id}/")
 
