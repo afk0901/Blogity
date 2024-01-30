@@ -69,12 +69,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
         self.assertEqual(self.response.data['last_name'], self.request_data["last_name"])
 
     def test_response_should_not_contain_password_field(self):
-        # TODO: The functionality itself is not implemented yet.
-        ...
-
-    def test_created_user_error(self):
-        # TODO: test the response on error.
-        ...
+        self.assertNotIn('password', self.response.data)
 
 
 class AuthenticatedUserTestCases(TestCase):
