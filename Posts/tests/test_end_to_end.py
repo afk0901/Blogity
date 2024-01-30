@@ -36,17 +36,18 @@ class TestBlogPost:
         return client
 
     @staticmethod
-    def setup_user_posts_get_authenticated_client_and_post_id(authenticate_client: bool):
+    def setup_user_posts_get_authenticated_client_and_post_id(authenticate_client: bool, number_of_posts=1):
         """
         Sets up blog post and the authenticated client if we want the client to be authenticated.
+        :param number_of_posts: Number of blog posts.
         :param authenticate_client: Should it return an authenticated client or not?
         :return: Tuple of a client and post
         """
         # To create posts, we need to be authenticated so that's why hardcoded to true.
-        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts=1)
+        authenticated_client = TestBlogPost.setup_user_posts_and_client(True, number_of_posts)
         client = Client.get_client(authenticated_client, authenticate_client)
-        post = Post.objects.last()
-        return client, post, authenticated_client
+        last_post = Post.objects.last()
+        return client, last_post, authenticated_client
 
     @staticmethod
     def create_test_blog_post_request_data_and_response(client: APIClient, user: CustomUser, number_of_posts=1):
@@ -267,6 +268,36 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
         self.assertContains(self.response, "id")
         self.assertContains(self.response, "author_id")
         self.assertContains(self.response, "content")
+
+
+class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(True,
+                                                                                                number_of_posts=3)
+        authenticated_client = client_and_post_id[2]
+        client = client_and_post_id[0]
+        for post in Post.objects.all():
+            TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=1)
+
+        cls.response = client.get(f'/api/posts/?include_comments=true')
+
+    def test_all_posts_and_comments_fetched_successfully_status_code(self):
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+
+    def test_all_posts_and_comments_fetched_successfully(self):
+        self.assertEqual(len(self.response.data), 3)
+
+        for post in self.response.data:
+
+            self.assertIn("author_id", post)
+            self.assertIn("title", post)
+            self.assertIn("content", post)
+
+            comment = post["comments"][0]
+            self.assertIn("author_id", comment)
+            self.assertIn("post", comment)
+            self.assertIn("content", comment)
 
 
 class CreateUserCreatePostDeletePost(TestCase):
