@@ -310,14 +310,20 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ...
-        #TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post()
+        client, post = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(authenticate=True)
+        comment_id = Comment.objects.last().id
+        cls.old_comment = client.get(f'/api/posts/{post.id}/comments/{comment_id}/')
+        author = baker.prepare(CustomUser, id=cls.old_comment.data["author_id"])
+        cls.new_comment = model_to_dict(baker.prepare(Comment, id=1, post=post, author_id=author))
+        cls.updated_comment_response = client.put(f'/api/posts/{post.id}/comments/{comment_id}/', data=cls.new_comment)
 
     def test_update_individual_comment_status_code(self):
-        ...
+        self.assertEqual(self.updated_comment_response.status_code, HTTPStatus.OK)
 
     def test_update_individual_comment(self):
-        ...
+        self.assertNotEqual(self.updated_comment_response.data["content"], self.old_comment.data["content"])
+        self.assertEqual(self.updated_comment_response.data["post"], self.old_comment.data["post"])
+        self.assertEqual(self.updated_comment_response.data["content"], self.new_comment["content"])
 
 
 class CreateUserCreatePostDeletePost(TestCase):
