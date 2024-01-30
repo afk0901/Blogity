@@ -306,10 +306,6 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
             self.assertIn("content", comment)
 
 
-@parameterized_class(('authenticate'), [
-    (True,),
-    (False,),
-])
 class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
 
     @classmethod

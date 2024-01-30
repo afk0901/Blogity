@@ -22,5 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Ensuring the password will be hashed. The serializer does not do so be default.
         # Same here regarding testing as in the create method.
+        super().update(instance, validated_data)
         instance.set_password(validated_data['password'])
         return instance

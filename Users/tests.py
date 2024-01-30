@@ -8,6 +8,8 @@ from django.forms import model_to_dict
 from Authentication.client import Client
 from parameterized import parameterized_class
 
+import datetime
+
 
 class TestUser:
     @staticmethod
@@ -107,3 +109,29 @@ class GetIndividualUser(TestCase):
         self.assertIn("username", self.resp.data)
         self.assertIn("first_name", self.resp.data)
         self.assertIn("last_name", self.resp.data)
+
+
+class UpdateIndividualUser(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        create_authenticated_test_user = TestUser.create_authenticated_test_user()
+        authenticated_client = create_authenticated_test_user["authenticated_client"]
+        user_id = CustomUser.objects.last().id
+        cls.old_user = authenticated_client.get(f"/api/users/{user_id}/")
+        cls.new_user = model_to_dict(baker.prepare(CustomUser, id=1, last_login=datetime.datetime.now()))
+
+        cls.updated_user_response = authenticated_client.put(f"/api/users/{user_id}/",
+                                            data=cls.new_user)
+
+    def test_update_individual_user_status_code(self):
+        self.assertEqual(self.updated_user_response.status_code, HTTPStatus.OK)
+
+    def test_update_individual_user(self):
+        self.assertNotEqual(self.updated_user_response.data["username"], self.old_user.data["username"])
+        self.assertNotEqual(self.updated_user_response.data["first_name"], self.old_user.data["first_name"])
+        self.assertNotEqual(self.updated_user_response.data["last_name"], self.old_user.data["last_name"])
+
+        self.assertEqual(self.updated_user_response.data["username"], self.new_user["username"])
+        self.assertEqual(self.updated_user_response.data["first_name"], self.new_user["first_name"])
+        self.assertEqual(self.updated_user_response.data["last_name"], self.new_user["last_name"])
+
