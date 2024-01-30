@@ -96,10 +96,19 @@ class TestBlogComment:
 
             request_data_and_response = {"request_data": comment,
                                          "response": client.post(f'/api/posts/{post_id}/comments/',
-                                        data=comment, format='json')}
+                                                                 data=comment, format='json')}
             request_data_and_responses.append(request_data_and_response)
 
         return request_data_and_responses
+
+    @staticmethod
+    def setup_user_posts_get_authenticated_user_create_comment_client_post(authenticate: bool, number_of_comments=1):
+        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(authenticate)
+        authenticated_client = client_and_post_id[2]
+        client = client_and_post_id[0]
+        post = client_and_post_id[1]
+        TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments)
+        return client, post
 
 
 class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
@@ -203,11 +212,10 @@ class CreateUserAndGetAllPostsTest(TestCase):
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(cls.authenticate)
-        authenticated_client = client_and_post_id[2]
-        client = client_and_post_id[0]
-        post = client_and_post_id[1]
-        TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=3)
+        client, post = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+            authenticate=
+            cls.authenticate,
+            number_of_comments=3)
         cls.response = client.get(f'/api/posts/{post.id}/comments/')
 
     def test_comment_retrieved_successfully_status_code(self):
@@ -252,12 +260,8 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(cls.authenticate)
-        authenticated_client = client_and_post_id[2]
-        client = client_and_post_id[0]
-        post = client_and_post_id[1]
-
-        TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=1)
+        client, post = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+            cls.authenticate)
         comment_id = Comment.objects.filter(post=post)[0].id
         cls.response = client.get(f'/api/posts/{post.id}/comments/{comment_id}/')
 
@@ -279,7 +283,6 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
         client = client_and_post_id[0]
         for post in Post.objects.all():
             TestBlogComment.create_comment_post_response(authenticated_client, post, number_of_comments=1)
-
         cls.response = client.get(f'/api/posts/?include_comments=true')
 
     def test_all_posts_and_comments_fetched_successfully_status_code(self):
@@ -289,7 +292,6 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
         self.assertEqual(len(self.response.data), 3)
 
         for post in self.response.data:
-
             self.assertIn("author_id", post)
             self.assertIn("title", post)
             self.assertIn("content", post)
@@ -298,6 +300,19 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
             self.assertIn("author_id", comment)
             self.assertIn("post", comment)
             self.assertIn("content", comment)
+
+
+class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        ...
+
+    def test_update_individual_comment_status_code(self):
+        ...
+
+    def test_update_individual_comment(self):
+        ...
 
 
 class CreateUserCreatePostDeletePost(TestCase):
