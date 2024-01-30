@@ -310,7 +310,8 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        client, post = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(authenticate=True)
+        client, post = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+            authenticate=True)
         comment_id = Comment.objects.last().id
         cls.old_comment = client.get(f'/api/posts/{post.id}/comments/{comment_id}/')
         author = baker.prepare(CustomUser, id=cls.old_comment.data["author_id"])
@@ -338,5 +339,22 @@ class CreateUserCreatePostDeletePost(TestCase):
         self.assertEqual(self.resp.status_code, HTTPStatus.NO_CONTENT)
 
     def test_post_deleted(self):
-        post_list = list(Post.objects.filter(id=self.post_id))
-        self.assertEqual(post_list, [])
+        post_deleted = not Post.objects.filter(id=self.post_id).exists()
+        self.assertTrue(post_deleted)
+
+
+class CreateUserCreatePostDeleteIndividualComment(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        client, post = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+            authenticate=True,
+            number_of_comments=3)
+        cls.last_comment_id = Comment.objects.last().id
+        cls.resp = client.delete(f"/api/posts/{post.id}/comments/{cls.last_comment_id}/")
+
+    def test_delete_comment_status(self):
+        self.assertEqual(self.resp.status_code, HTTPStatus.NO_CONTENT)
+
+    def test_comment_deleted(self):
+        comment_deleted = not Comment.objects.filter(id=self.last_comment_id).exists()
+        self.assertTrue(comment_deleted)
