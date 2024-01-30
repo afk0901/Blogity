@@ -274,10 +274,14 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
         self.assertContains(self.response, "content")
 
 
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
 class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
     @classmethod
     def setUpTestData(cls):
-        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(True,
+        client_and_post_id = TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(cls.authenticate,
                                                                                                 number_of_posts=3)
         authenticated_client = client_and_post_id[2]
         client = client_and_post_id[0]
@@ -307,6 +311,7 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
     @classmethod
     def setUpTestData(cls):
         ...
+        #TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post()
 
     def test_update_individual_comment_status_code(self):
         ...
