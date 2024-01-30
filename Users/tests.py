@@ -135,3 +135,14 @@ class UpdateIndividualUser(TestCase):
         self.assertEqual(self.updated_user_response.data["first_name"], self.new_user["first_name"])
         self.assertEqual(self.updated_user_response.data["last_name"], self.new_user["last_name"])
 
+
+class UserCantDeleteItSelf(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        create_authenticated_test_user = TestUser.create_authenticated_test_user()
+        authenticated_client = create_authenticated_test_user["authenticated_client"]
+        current_user_id = create_authenticated_test_user["user_data"]["id"]
+        cls.resp = authenticated_client.delete(f"/api/users/{current_user_id}/")
+
+    def test_user_cant_delete_it_self_status_code(self):
+        self.assertEqual(self.resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
