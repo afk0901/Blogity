@@ -66,7 +66,7 @@ class TestBlogPost:
         Creates a new user, authenticates the user and creates a blog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
         """
-        user_and_client = TestUser.create_authenticated_test_user()
+        user_and_client = TestUser.create_test_user()
         user = user_and_client["custom_user_instance"]
         authenticated_client = user_and_client["authenticated_client"]
 

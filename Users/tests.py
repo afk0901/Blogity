@@ -31,7 +31,7 @@ class TestUser:
                                     )}
 
     @staticmethod
-    def create_authenticated_test_user():
+    def create_test_user(authenticated: bool = True):
         # Create the user
         create_user_response = TestUser.create_user_response()
         user_post_data = create_user_response["post_data"]
@@ -40,25 +40,33 @@ class TestUser:
         authenticate_user_client = TestUser.authenticate_user_client(username=user_post_data["username"],
                                                                      password=user_post_data["password"])
 
-        client = authenticate_user_client["client"]
+        authenticated_client = authenticate_user_client["client"]
         authenticate_response = authenticate_user_client["authentication_response"]
 
-        return {"user_data": create_user_response["response"].data,
+        client = Client.get_client(authenticated_client=authenticated_client, authenticate_client=authenticated)
+
+        return {"user_response": create_user_response["response"],
+                "post_data": user_post_data,
                 "custom_user_instance": CustomUser.objects.get(username=user_post_data["username"]),
                 "authenticate_response": authenticate_response,
                 "authenticated_client": client
                 }
 
 
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
 class CreatedUserSuccessfullyTestCases(TestCase):
     """
     Makes a post-request and checks if the user has been created successfully.
     """
 
-    def setUp(self):
-        create_user_response = TestUser.create_user_response()
-        self.response = create_user_response["response"]
-        self.request_data = create_user_response["post_data"]
+    @classmethod
+    def setUpTestData(cls):
+        create_test_user = TestUser.create_test_user(authenticated=cls.authenticate)
+        cls.response = create_test_user["user_response"]
+        cls.request_data = create_test_user["post_data"]
 
     def test_created_user_status(self):
         self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
@@ -72,10 +80,10 @@ class CreatedUserSuccessfullyTestCases(TestCase):
         self.assertNotIn('password', self.response.data)
 
 
-class AuthenticatedUserTestCases(TestCase):
+class AuthenticateUserTestCases(TestCase):
 
     def setUp(self):
-        self.auth_response = TestUser.create_authenticated_test_user()["authenticate_response"]
+        self.auth_response = TestUser.create_test_user()["authenticate_response"]
 
     def test_user_created_and_authenticated(self):
         self.assertContains(self.auth_response, 'access', status_code=HTTPStatus.OK)
@@ -90,8 +98,8 @@ class GetIndividualUser(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        create_authenticated_test_user = TestUser.create_authenticated_test_user()
-        authenticated_client = create_authenticated_test_user["authenticated_client"]
+        create_test_user = TestUser.create_test_user()
+        authenticated_client = create_test_user["authenticated_client"]
         client = Client.get_client(authenticated_client, cls.authenticate)
         user_id = CustomUser.objects.last().id
         cls.resp = client.get(f"/api/users/{user_id}/")
@@ -109,14 +117,14 @@ class GetIndividualUser(TestCase):
 class UpdateIndividualUser(TestCase):
     @classmethod
     def setUpTestData(cls):
-        create_authenticated_test_user = TestUser.create_authenticated_test_user()
-        authenticated_client = create_authenticated_test_user["authenticated_client"]
+        create_test_user = TestUser.create_test_user()
+        authenticated_client = create_test_user["authenticated_client"]
         user_id = CustomUser.objects.last().id
         cls.old_user = authenticated_client.get(f"/api/users/{user_id}/")
         cls.new_user = model_to_dict(baker.prepare(CustomUser, id=1, last_login=datetime.datetime.now()))
 
         cls.updated_user_response = authenticated_client.put(f"/api/users/{user_id}/",
-                                            data=cls.new_user)
+                                                             data=cls.new_user)
 
     def test_update_individual_user_status_code(self):
         self.assertEqual(self.updated_user_response.status_code, HTTPStatus.OK)
@@ -134,9 +142,9 @@ class UpdateIndividualUser(TestCase):
 class UserCantDeleteItSelf(TestCase):
     @classmethod
     def setUpTestData(cls):
-        create_authenticated_test_user = TestUser.create_authenticated_test_user()
-        authenticated_client = create_authenticated_test_user["authenticated_client"]
-        current_user_id = create_authenticated_test_user["user_data"]["id"]
+        create_test_user = TestUser.create_test_user()
+        authenticated_client = create_test_user["authenticated_client"]
+        current_user_id = create_test_user["user_response"].data["id"]
         cls.resp = authenticated_client.delete(f"/api/users/{current_user_id}/")
 
     def test_user_cant_delete_it_self_status_code(self):
