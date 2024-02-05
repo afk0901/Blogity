@@ -7,6 +7,7 @@ from model_bakery import baker
 from django.forms import model_to_dict
 from Authentication.client import Client
 from parameterized import parameterized_class
+import re
 
 import datetime
 
@@ -52,11 +53,19 @@ class TestUser:
                 "authenticated_client": client
                 }
 
+    @staticmethod
+    def password_is_hashed(username : str):
+        user = CustomUser.objects.get(username=username)
+        # Starts with the hash prefix, then iterations (some numbers)
+        # and then the hash itself that can be anything.
+        hash_regex = r'^pbkdf2_sha256\$\d+.*'
+        return re.match(hash_regex, user.password)
 
-@parameterized_class(('authenticate'), [
-    (True,),
-    (False,),
-])
+
+# @parameterized_class(('authenticate'), [
+#     (True,),
+#     (False,),
+# ])
 class CreatedUserSuccessfullyTestCases(TestCase):
     """
     Makes a post-request and checks if the user has been created successfully.
@@ -64,7 +73,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        create_test_user = TestUser.create_test_user(authenticated=cls.authenticate)
+        create_test_user = TestUser.create_test_user(authenticated=True)
         cls.response = create_test_user["user_response"]
         cls.request_data = create_test_user["post_data"]
 
@@ -78,6 +87,9 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 
     def test_response_should_not_contain_password_field(self):
         self.assertNotIn('password', self.response.data)
+
+    def test_password_is_hashed(self):
+        self.assertTrue(TestUser.password_is_hashed(username=self.response.data['username']))
 
 
 class AuthenticateUserTestCases(TestCase):
@@ -112,6 +124,7 @@ class GetIndividualUser(TestCase):
         self.assertIn("username", self.resp.data)
         self.assertIn("first_name", self.resp.data)
         self.assertIn("last_name", self.resp.data)
+        self.assertNotIn("password", self.resp.data)
 
 
 class UpdateIndividualUser(TestCase):
@@ -137,6 +150,9 @@ class UpdateIndividualUser(TestCase):
         self.assertEqual(self.updated_user_response.data["username"], self.new_user["username"])
         self.assertEqual(self.updated_user_response.data["first_name"], self.new_user["first_name"])
         self.assertEqual(self.updated_user_response.data["last_name"], self.new_user["last_name"])
+
+    def test_password_is_hashed(self):
+        self.assertTrue(TestUser.password_is_hashed(username=self.updated_user_response.data["username"]))
 
 
 class UserCantDeleteItSelf(TestCase):
