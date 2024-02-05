@@ -62,10 +62,10 @@ class TestUser:
         return re.match(hash_regex, user.password)
 
 
-# @parameterized_class(('authenticate'), [
-#     (True,),
-#     (False,),
-# ])
+@parameterized_class(('authenticate'), [
+    (True,),
+    (False,),
+])
 class CreatedUserSuccessfullyTestCases(TestCase):
     """
     Makes a post-request and checks if the user has been created successfully.
@@ -73,7 +73,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        create_test_user = TestUser.create_test_user(authenticated=True)
+        create_test_user = TestUser.create_test_user(authenticated=cls.authenticate)
         cls.response = create_test_user["user_response"]
         cls.request_data = create_test_user["post_data"]
 
