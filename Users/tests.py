@@ -1,3 +1,4 @@
+import json
 from rest_framework.test import APIClient
 from django.test import TestCase
 from http import HTTPStatus
@@ -73,7 +74,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        create_test_user = TestUser.create_test_user(authenticated=cls.authenticate)
+        create_test_user = TestUser.create_test_user(authenticated=True)
         cls.response = create_test_user["user_response"]
         cls.request_data = create_test_user["post_data"]
 
@@ -187,5 +188,5 @@ class UserCantDelete(TestCase):
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
 
     def test_unauthorized_user_cant_delete_a_user_status_code(self):
-        resp = APIClient().delete(f"/api/users/{self.current_user_id}/")
+        resp = APIClient().delete(f"/api/users/{self.current_user_id}/", content_type="application/json")
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)

@@ -135,10 +135,10 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
     def setUpTestData(cls):
         create_test_user_and_create_blog_post = TestBlogPost.create_test_user_and_create_blog_post()
         request_data_response = create_test_user_and_create_blog_post["request_data_responses"]
-        post_id = Post.objects.last().id
+        cls.post_id = Post.objects.last().id
 
         cls.request_data = request_data_response[0]["request_data"]
-        cls.update_url = f'/api/posts/{post_id}/'
+        cls.update_url = f'/api/posts/{cls.post_id}/'
         cls.update_client = create_test_user_and_create_blog_post["authenticated_client"]
 
     def test_update_title(self):
@@ -166,6 +166,13 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
 
         self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_unauthorized_user_cant_update(self):
+        user = baker.prepare(CustomUser, id=1)
+        data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
+        resp = APIClient().put(f'/api/posts/{self.post_id}/', data=json.dumps(data),
+                                                                    content_type="application/json")
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
+
 
 @parameterized_class(('authenticate'), [
     (True,),
@@ -187,6 +194,12 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
         self.assertContains(self.response, "author_id")
         self.assertContains(self.response, "title")
         self.assertContains(self.response, "content")
+
+    def test_unauthorized_user_cant_create_post_status_code(self):
+        user = baker.prepare(CustomUser, id=1)
+        data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
+        resp = APIClient().post(f'/api/posts/', data=json.dumps(data), content_type="application/json")
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
 
 
 @parameterized_class(('authenticate'), [
@@ -389,3 +402,5 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
                                     f"/api/posts/{self.post_id}/comments/{self.last_comment_id-1}/")
 
         self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
+
+
