@@ -360,6 +360,12 @@ class CreateUserCreatePostDeletePost(TestCase):
         post_deleted = not Post.objects.filter(id=self.post_id).exists()
         self.assertTrue(post_deleted)
 
+    def test_only_owner_can_delete(self):
+        resp = TestUser.create_test_user()["authenticated_client"].delete(
+                                    f"/api/posts/{self.post_id-1}/")
+
+        self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
+
 
 class CreateUserCreatePostDeleteIndividualComment(TestCase):
     @classmethod
