@@ -368,7 +368,8 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
             authenticate=True,
             number_of_comments=3)
         cls.last_comment_id = Comment.objects.last().id
-        cls.resp = client.delete(f"/api/posts/{post.id}/comments/{cls.last_comment_id}/")
+        cls.post_id = post.id
+        cls.resp = client.delete(f"/api/posts/{cls.post_id}/comments/{cls.last_comment_id}/")
 
     def test_delete_comment_status(self):
         self.assertEqual(self.resp.status_code, HTTPStatus.NO_CONTENT)
@@ -376,3 +377,9 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
     def test_comment_deleted(self):
         comment_deleted = not Comment.objects.filter(id=self.last_comment_id).exists()
         self.assertTrue(comment_deleted)
+
+    def test_only_owner_can_delete(self):
+        resp = TestUser.create_test_user()["authenticated_client"].delete(
+                                    f"/api/posts/{self.post_id}/comments/{self.last_comment_id-1}/")
+
+        self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
