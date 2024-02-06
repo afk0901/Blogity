@@ -403,4 +403,6 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
 
         self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
 
-
+    def test_unauthorized_user_cannot_delete(self):
+        resp = APIClient().delete(f'/api/posts/{self.post_id}/', content_type="application/json")
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
