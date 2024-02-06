@@ -164,18 +164,22 @@ class UpdateIndividualUser(TestCase):
         self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
 
 
-class UserCantDeleteItSelfOrOtherUser(TestCase):
+class UserCantDelete(TestCase):
     @classmethod
     def setUpTestData(cls):
         create_test_user = TestUser.create_test_user()
-        current_user_id = create_test_user["user_response"].data["id"]
-        cls.resp = create_test_user["authenticated_client"].delete(f"/api/users/{current_user_id}/")
+        cls.current_user_id = create_test_user["user_response"].data["id"]
+        cls.resp = create_test_user["authenticated_client"].delete(f"/api/users/{cls.current_user_id}/")
 
     def test_user_cant_delete_it_self_status_code(self):
         self.assertEqual(self.resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
 
-    def test_user_cant_delete_another_user_status_code(self):
+    def test_authenticated_user_cant_delete_another_user_status_code(self):
         create_test_user = TestUser.create_test_user()
         current_user_id = create_test_user["user_response"].data["id"]
         resp = create_test_user["authenticated_client"].delete(f"/api/users/{current_user_id-1}/")
+        self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
+
+    def test_unauthorized_user_cant_delete_a_user_status_code(self):
+        resp = APIClient().delete(f"/api/users/{self.current_user_id}/")
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
