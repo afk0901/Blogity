@@ -158,6 +158,14 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertNotEqual(self.request_data["content"], response.data["content"])
 
+    def test_only_owner_can_update(self):
+        updated_user_response = TestUser.create_test_user()["authenticated_client"].put(self.update_url,
+                                                                                        data=json.dumps(
+                                                                                            self.request_data),
+                                                                                        content_type='application/json')
+
+        self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
+
 
 @parameterized_class(('authenticate'), [
     (True,),

@@ -54,7 +54,7 @@ class TestUser:
                 }
 
     @staticmethod
-    def password_is_hashed(username : str):
+    def password_is_hashed(username: str):
         user = CustomUser.objects.get(username=username)
         # Starts with the hash prefix, then iterations (some numbers)
         # and then the hash itself that can be anything.
@@ -128,15 +128,16 @@ class GetIndividualUser(TestCase):
 
 
 class UpdateIndividualUser(TestCase):
+
     @classmethod
     def setUpTestData(cls):
-        create_test_user = TestUser.create_test_user()
-        authenticated_client = create_test_user["authenticated_client"]
-        user_id = CustomUser.objects.last().id
-        cls.old_user = authenticated_client.get(f"/api/users/{user_id}/")
+        test_user = TestUser.create_test_user()
+        authenticated_client = test_user["authenticated_client"]
+        cls.user_id = CustomUser.objects.last().id
+        cls.old_user = authenticated_client.get(f"/api/users/{cls.user_id}/")
         cls.new_user = model_to_dict(baker.prepare(CustomUser, id=1, last_login=datetime.datetime.now()))
 
-        cls.updated_user_response = authenticated_client.put(f"/api/users/{user_id}/",
+        cls.updated_user_response = authenticated_client.put(f"/api/users/{cls.user_id}/",
                                                              data=cls.new_user)
 
     def test_update_individual_user_status_code(self):
@@ -153,6 +154,14 @@ class UpdateIndividualUser(TestCase):
 
     def test_password_is_hashed(self):
         self.assertTrue(TestUser.password_is_hashed(username=self.updated_user_response.data["username"]))
+
+    def test_only_owner_can_update(self):
+        # User that has a different user id than id about to be updated.
+        updated_user_response = TestUser.create_test_user()["authenticated_client"].put(f"/api/users/{self.user_id}/",
+                                                                                        data=self.new_user,
+                                                                                        content_type='application/json')
+
+        self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
 
 
 class UserCantDeleteItSelf(TestCase):
