@@ -155,13 +155,19 @@ class UpdateIndividualUser(TestCase):
     def test_password_is_hashed(self):
         self.assertTrue(TestUser.password_is_hashed(username=self.updated_user_response.data["username"]))
 
-    def test_only_owner_can_update(self):
+    def test_only_authorized_owner_can_update(self):
         # User that has a different user id than id about to be updated.
         updated_user_response = TestUser.create_test_user()["authenticated_client"].put(f"/api/users/{self.user_id}/",
                                                                                         data=self.new_user,
                                                                                         content_type='application/json')
 
         self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_unauthorized_user_cant_update_status_code(self):
+        resp = APIClient().put(f"/api/users/{self.user_id}/",
+                               data=self.new_user,
+                               content_type='application/json')
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
 
 
 class UserCantDelete(TestCase):
@@ -177,7 +183,7 @@ class UserCantDelete(TestCase):
     def test_authenticated_user_cant_delete_another_user_status_code(self):
         create_test_user = TestUser.create_test_user()
         current_user_id = create_test_user["user_response"].data["id"]
-        resp = create_test_user["authenticated_client"].delete(f"/api/users/{current_user_id-1}/")
+        resp = create_test_user["authenticated_client"].delete(f"/api/users/{current_user_id - 1}/")
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
 
     def test_unauthorized_user_cant_delete_a_user_status_code(self):
