@@ -272,6 +272,14 @@ class CreateUserCreatePostCreateComments(TestCase):
         self.assertEqual(self.request_data["post"], self.response_data["post"])
         self.assertEqual(self.request_data["content"], self.response_data["content"])
 
+    def test_unauthorized_user_cant_create(self):
+        user = baker.prepare(CustomUser, id=1)
+        post_id = self.request_data["post"]
+        data = model_to_dict(baker.prepare(Comment, id=1, author_id=user))
+        resp = APIClient().post(f"/api/posts/{post_id}/comments/", data=json.dumps(data),
+                                                                        content_type="application/json")
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
+
 
 @parameterized_class(('authenticate'), [
     (True,),
@@ -357,6 +365,12 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
 
         self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_unauthorized_user_cant_update(self):
+        user = baker.prepare(CustomUser, id=1)
+        data = model_to_dict(baker.prepare(Comment, id=1, author_id=user))
+        resp = APIClient().put(self.update_url, data=json.dumps(data), content_type="application/json")
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
+
 
 class CreateUserCreatePostDeletePost(TestCase):
 
@@ -404,5 +418,9 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
         self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
 
     def test_unauthorized_user_cannot_delete(self):
+        resp = APIClient().delete(f'/api/posts/{self.post_id}/', content_type="application/json")
+        self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
+
+    def test_unauthorized_user_cannot_delete_comment(self):
         resp = APIClient().delete(f'/api/posts/{self.post_id}/', content_type="application/json")
         self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
