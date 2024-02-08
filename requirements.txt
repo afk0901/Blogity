@@ -1,7 +1,7 @@
-Django~=4.2.6
-psycopg2
-python-decouple
-djangorestframework~=3.14.0
-django-filter~=23.3
-drf-nested-routers
-djangorestframework-simplejwt
+Django==4.2.6
+psycopg2==2.9.9
+python-decouple==3.8
+djangorestframework==3.14.0
+django-filter==23.3
+drf-nested-routers==0.93.4
+djangorestframework-simplejwt==5.3.0
