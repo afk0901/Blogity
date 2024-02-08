@@ -1,10 +1,10 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
 from Permissions.author_permissions import IsAuthorAnyRead
-from Posts.models import Post, Comment
-from Posts.serializers import PostSerializer, PostWithCommentsSerializer
-from Posts.serializers import CommentSerializer
-from django_filters.rest_framework import DjangoFilterBackend
+from Posts.models import Comment, Post
+from Posts.serializers import (CommentSerializer, PostSerializer,
+                               PostWithCommentsSerializer)
 
 
 class PostViewSet(viewsets.ModelViewSet):

@@ -1,7 +1,9 @@
-from django.test import SimpleTestCase
-from Posts.views import PostViewSet
-from Posts.serializers import PostWithCommentsSerializer, PostSerializer
 from unittest.mock import patch
+
+from django.test import SimpleTestCase
+
+from Posts.serializers import PostSerializer, PostWithCommentsSerializer
+from Posts.views import PostViewSet
 
 
 class PostSerializerTest(SimpleTestCase):

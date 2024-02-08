@@ -1,16 +1,16 @@
-from django.forms import model_to_dict
-from django.test import TestCase
-
-from Posts.models import Post, Comment
-from Users.models import CustomUser
-from Users.tests import TestUser
-from rest_framework.test import APIClient
 import json
 from http import HTTPStatus
-from parameterized import parameterized_class
+
+from django.forms import model_to_dict
+from django.test import TestCase
 from model_bakery import baker
+from parameterized import parameterized_class
+from rest_framework.test import APIClient
 
 from Authentication.client import Client
+from Posts.models import Comment, Post
+from Users.models import CustomUser
+from Users.tests import TestUser
 
 """
 This test suite tests the PostViewSet.

@@ -1,7 +1,9 @@
+from unittest.mock import Mock
+
 from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
+
 from Permissions.author_permissions import IsAuthorAnyRead
-from unittest.mock import Mock
 
 
 class AuthorPermissionTest(SimpleTestCase):

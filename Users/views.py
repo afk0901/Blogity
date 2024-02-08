@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 
+from Permissions.user_permissions import UserOnlyModifyOwnAllowRead
 from Users.models import CustomUser
 from Users.serializers import UserSerializer
-from Permissions.user_permissions import UserOnlyModifyOwnAllowRead
 
 
 class UserViewSet(viewsets.ModelViewSet):

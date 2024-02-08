@@ -1,15 +1,15 @@
-from rest_framework.test import APIClient
-from django.test import TestCase
+import datetime
+import re
 from http import HTTPStatus
 
-from Users.models import CustomUser
-from model_bakery import baker
 from django.forms import model_to_dict
-from Authentication.client import Client
+from django.test import TestCase
+from model_bakery import baker
 from parameterized import parameterized_class
-import re
+from rest_framework.test import APIClient
 
-import datetime
+from Authentication.client import Client
+from Users.models import CustomUser
 
 
 class TestUser:
