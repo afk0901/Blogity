@@ -29,7 +29,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
         permissions.
         """
 
-        if 'author_id' in request.data and request.method == 'POST':
+        if "author_id" in request.data and request.method == "POST":
             return request.data["author_id"] == request.user.id
         return True
 
@@ -49,7 +49,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
         permissions.
         """
 
-        if request.method == 'GET':
+        if request.method == "GET":
             return True
         else:
             return obj.author_id == request.user

@@ -128,15 +128,15 @@ STATIC_URL = config("STATIC_URL")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=99999),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=99999),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=10),
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }

@@ -15,9 +15,9 @@ class AuthorPermissionTest(SimpleTestCase):
         self.user = Mock()
         self.other_user = Mock()
 
-        self.user.username = 'user'
+        self.user.username = "user"
         self.user.id = 1
-        self.other_user.username = 'other_user'
+        self.other_user.username = "other_user"
         self.other_user.id = 2
 
         self.permission = IsAuthorAnyRead()
@@ -29,9 +29,9 @@ class AuthorPermissionTest(SimpleTestCase):
         # REST API request factory
         self.factory = APIRequestFactory()
 
-        self.list_view_url = '/some-url/'
+        self.list_view_url = "/some-url/"
 
-        self.detail_view_url = '/some-url/1/'
+        self.detail_view_url = "/some-url/1/"
 
     def post_request(self, user):
         """
@@ -39,11 +39,7 @@ class AuthorPermissionTest(SimpleTestCase):
         :param user: The user performing the request
         :return: Post request with an extra data attribute
         """
-        data = {
-            "author_id": self.user.id,
-            "title": "",
-            "content": ""
-        }
+        data = {"author_id": self.user.id, "title": "", "content": ""}
 
         request = self.factory.post(self.list_view_url)
         request.data = data
@@ -57,7 +53,9 @@ class AuthorPermissionTest(SimpleTestCase):
         # Even tho this is a get request, the data attribute will be included
         # leading to a 500 error if it does not contain the desired key.
         request.data = {}
-        self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))
+        self.assertTrue(
+            self.permission.has_object_permission(request, "", self.author_object)
+        )
 
     def test_has_permission_owner(self):
         # User should be the author of the object and to be able to have full list
@@ -66,7 +64,6 @@ class AuthorPermissionTest(SimpleTestCase):
         self.assertTrue(self.permission.has_permission(request, ""))
 
     def test_has_permission_not_owner_deny_add_to_list(self):
-
         request = self.post_request(self.other_user)
         self.assertFalse(self.permission.has_permission(request, ""))
 
@@ -76,10 +73,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request.user = self.user
         # We put in some author data because it should not matter in this case
         # if the consumer sends data with the GET request.
-        request.data = {"author": 18,
-                        "post": 4,
-                        "content": "Esta bem!"
-                        }
+        request.data = {"author": 18, "post": 4, "content": "Esta bem!"}
         self.assertTrue(self.permission.has_permission(request, ""))
 
     def test_has_permission_get_true_other_user(self):
@@ -103,10 +97,14 @@ class AuthorPermissionTest(SimpleTestCase):
         request = self.factory.get(self.detail_view_url)
         request.user = self.user
         request.data = {}
-        self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))
+        self.assertTrue(
+            self.permission.has_object_permission(request, "", self.author_object)
+        )
 
     def test_has_permission_get_true_true_other_user_details(self):
         request = self.factory.get(self.detail_view_url)
         request.user = self.other_user
         request.data = {}
-        self.assertTrue(self.permission.has_object_permission(request, "", self.author_object))
+        self.assertTrue(
+            self.permission.has_object_permission(request, "", self.author_object)
+        )

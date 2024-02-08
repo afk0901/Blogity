@@ -8,10 +8,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 class PostViewSet(viewsets.ModelViewSet):
-
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ("title", )
-    http_method_names = ['get', 'post', 'put', 'delete']
+    filterset_fields = ("title",)
+    http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsAuthorAnyRead]
 
     def get_serializer_class(self):
@@ -26,11 +25,10 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-
     serializer_class = CommentSerializer
-    http_method_names = ['get', 'post', 'put', 'delete']
+    http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsAuthorAnyRead]
 
     def get_queryset(self):
-        post_id = self.kwargs.get('post_pk')
+        post_id = self.kwargs.get("post_pk")
         return Comment.objects.filter(post_id=post_id)

@@ -2,9 +2,10 @@ from rest_framework.test import APIClient
 
 
 class Client:
-
     @staticmethod
-    def get_client(authenticated_client: APIClient = APIClient(), authenticate_client: bool = False):
+    def get_client(
+        authenticated_client: APIClient = APIClient(), authenticate_client: bool = False
+    ):
         """
 
         :param authenticated_client:
