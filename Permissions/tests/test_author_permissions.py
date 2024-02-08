@@ -4,6 +4,9 @@ from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
 
 from Permissions.author_permissions import IsAuthorAnyRead
+from Users.models import CustomUser
+
+from django.core.handlers.wsgi import WSGIRequest
 
 
 class AuthorPermissionTest(SimpleTestCase):
@@ -13,7 +16,7 @@ class AuthorPermissionTest(SimpleTestCase):
     author of a blog post or blog comment.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = Mock()
         self.other_user = Mock()
 
@@ -35,7 +38,7 @@ class AuthorPermissionTest(SimpleTestCase):
 
         self.detail_view_url = "/some-url/1/"
 
-    def post_request(self, user):
+    def post_request(self, user: CustomUser) -> WSGIRequest:
         """
          Simulates a post-request without performing one.
         :param user: The user performing the request
@@ -48,7 +51,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request.user = user
         return request
 
-    def test_has_object_permission_owner(self):
+    def test_has_object_permission_owner(self) -> None:
         # User should have full permission over the object if the user is the author
         request = self.factory.get(self.list_view_url)
         request.user = self.user
@@ -59,17 +62,17 @@ class AuthorPermissionTest(SimpleTestCase):
             self.permission.has_object_permission(request, "", self.author_object)
         )
 
-    def test_has_permission_owner(self):
+    def test_has_permission_owner(self) -> None:
         # User should be the author of the object and to be able to have full list
         # permissions.
         request = self.post_request(self.user)
         self.assertTrue(self.permission.has_permission(request, ""))
 
-    def test_has_permission_not_owner_deny_add_to_list(self):
+    def test_has_permission_not_owner_deny_add_to_list(self) -> None:
         request = self.post_request(self.other_user)
         self.assertFalse(self.permission.has_permission(request, ""))
 
-    def test_has_permission_get_true_user(self):
+    def test_has_permission_get_true_user(self) -> None:
         # Because everybody should be able to have read access
         request = self.factory.get(self.list_view_url)
         request.user = self.user
@@ -78,7 +81,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request.data = {"author": 18, "post": 4, "content": "Esta bem!"}
         self.assertTrue(self.permission.has_permission(request, ""))
 
-    def test_has_permission_get_true_other_user(self):
+    def test_has_permission_get_true_other_user(self) -> None:
         # Because everybody should be able to have read access, not just the user that
         # is the author
         request = self.factory.get(self.list_view_url)
@@ -86,7 +89,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request.data = {}
         self.assertTrue(self.permission.has_permission(request, ""))
 
-    def test_has_permission_get_true_user_request_data_but_no_author(self):
+    def test_has_permission_get_true_user_request_data_but_no_author(self) -> None:
         # Because everybody should be able to have read access
         request = self.factory.get(self.list_view_url)
         request.user = self.user
@@ -95,7 +98,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request.data = {}
         self.assertTrue(self.permission.has_permission(request, ""))
 
-    def test_has_permission_get_true_true_user_details(self):
+    def test_has_permission_get_true_true_user_details(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.user
         request.data = {}
@@ -103,7 +106,7 @@ class AuthorPermissionTest(SimpleTestCase):
             self.permission.has_object_permission(request, "", self.author_object)
         )
 
-    def test_has_permission_get_true_true_other_user_details(self):
+    def test_has_permission_get_true_true_other_user_details(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.other_user
         request.data = {}

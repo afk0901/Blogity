@@ -1,5 +1,6 @@
 import datetime
 import re
+from re import Match
 from http import HTTPStatus
 
 from django.forms import model_to_dict
@@ -14,7 +15,7 @@ from Users.models import CustomUser
 
 class TestUser:
     @staticmethod
-    def create_user_response():
+    def create_user_response() -> dict[str, APIClient]:
         """
         :return: Post_data and response
         """
@@ -26,7 +27,7 @@ class TestUser:
         }
 
     @staticmethod
-    def authenticate_user_client(username: str, password: str):
+    def authenticate_user_client(username: str, password: str) -> dict[str, APIClient]:
         client = APIClient()
         response = client.post(
             "/api/token/", {"username": username, "password": password}, format="json"
@@ -40,7 +41,7 @@ class TestUser:
         }
 
     @staticmethod
-    def create_test_user(authenticated: bool = True):
+    def create_test_user(authenticated: bool = True) -> dict[str, dict[str, APIClient] | APIClient | str]:
         # Create the user
         create_user_response = TestUser.create_user_response()
         user_post_data = create_user_response["post_data"]
@@ -68,7 +69,7 @@ class TestUser:
         }
 
     @staticmethod
-    def password_is_hashed(username: str):
+    def password_is_hashed(username: str) -> Match[str]:
         user = CustomUser.objects.get(username=username)
         # Starts with the hash prefix, then iterations (some numbers)
         # and then the hash itself that can be anything.
@@ -89,15 +90,15 @@ class CreatedUserSuccessfullyTestCases(TestCase):
     """
 
     @classmethod
-    def setUpTestData(cls):
-        create_test_user = TestUser.create_test_user(authenticated=True)
+    def setUpTestData(cls) -> None:
+        create_test_user = TestUser.create_test_user(authenticated=cls.authenticate)
         cls.response = create_test_user["user_response"]
         cls.request_data = create_test_user["post_data"]
 
-    def test_created_user_status(self):
+    def test_created_user_status(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.CREATED)
 
-    def test_created_user_successfully_response(self):
+    def test_created_user_successfully_response(self) -> None:
         self.assertEqual(self.response.data["username"], self.request_data["username"])
         self.assertEqual(
             self.response.data["first_name"], self.request_data["first_name"]
@@ -106,20 +107,20 @@ class CreatedUserSuccessfullyTestCases(TestCase):
             self.response.data["last_name"], self.request_data["last_name"]
         )
 
-    def test_response_should_not_contain_password_field(self):
+    def test_response_should_not_contain_password_field(self) -> None:
         self.assertNotIn("password", self.response.data)
 
-    def test_password_is_hashed(self):
+    def test_password_is_hashed(self) -> None:
         self.assertTrue(
             TestUser.password_is_hashed(username=self.response.data["username"])
         )
 
 
 class AuthenticateUserTestCases(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.auth_response = TestUser.create_test_user()["authenticate_response"]
 
-    def test_user_created_and_authenticated(self):
+    def test_user_created_and_authenticated(self) -> None:
         self.assertContains(self.auth_response, "access", status_code=HTTPStatus.OK)
         self.assertContains(self.auth_response, "refresh", status_code=HTTPStatus.OK)
 
@@ -133,17 +134,17 @@ class AuthenticateUserTestCases(TestCase):
 )
 class GetIndividualUser(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         create_test_user = TestUser.create_test_user()
         authenticated_client = create_test_user["authenticated_client"]
         client = Client.get_client(authenticated_client, cls.authenticate)
         user_id = CustomUser.objects.last().id
         cls.resp = client.get(f"/api/users/{user_id}/")
 
-    def test_get_individual_user_status_code(self):
+    def test_get_individual_user_status_code(self) -> None:
         self.assertEqual(self.resp.status_code, HTTPStatus.OK)
 
-    def test_get_individual_user(self):
+    def test_get_individual_user(self) -> None:
         self.assertIn("id", self.resp.data)
         self.assertIn("username", self.resp.data)
         self.assertIn("first_name", self.resp.data)
@@ -153,7 +154,7 @@ class GetIndividualUser(TestCase):
 
 class UpdateIndividualUser(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         test_user = TestUser.create_test_user()
         authenticated_client = test_user["authenticated_client"]
         cls.user_id = CustomUser.objects.last().id
@@ -166,10 +167,10 @@ class UpdateIndividualUser(TestCase):
             f"/api/users/{cls.user_id}/", data=cls.new_user
         )
 
-    def test_update_individual_user_status_code(self):
+    def test_update_individual_user_status_code(self) -> None:
         self.assertEqual(self.updated_user_response.status_code, HTTPStatus.OK)
 
-    def test_update_individual_user(self):
+    def test_update_individual_user(self) -> None:
         self.assertNotEqual(
             self.updated_user_response.data["username"], self.old_user.data["username"]
         )
@@ -192,14 +193,14 @@ class UpdateIndividualUser(TestCase):
             self.updated_user_response.data["last_name"], self.new_user["last_name"]
         )
 
-    def test_password_is_hashed(self):
+    def test_password_is_hashed(self) -> None:
         self.assertTrue(
             TestUser.password_is_hashed(
                 username=self.updated_user_response.data["username"]
             )
         )
 
-    def test_only_authorized_owner_can_update(self):
+    def test_only_authorized_owner_can_update(self) -> None:
         # User that has a different user id than id about to be updated.
         updated_user_response = TestUser.create_test_user()["authenticated_client"].put(
             f"/api/users/{self.user_id}/",
@@ -209,7 +210,7 @@ class UpdateIndividualUser(TestCase):
 
         self.assertEqual(updated_user_response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_unauthorized_user_cant_update_status_code(self):
+    def test_unauthorized_user_cant_update_status_code(self) -> None:
         resp = APIClient().put(
             f"/api/users/{self.user_id}/",
             data=self.new_user,
@@ -220,17 +221,17 @@ class UpdateIndividualUser(TestCase):
 
 class UserCantDelete(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         create_test_user = TestUser.create_test_user()
         cls.current_user_id = create_test_user["user_response"].data["id"]
         cls.resp = create_test_user["authenticated_client"].delete(
             f"/api/users/{cls.current_user_id}/"
         )
 
-    def test_user_cant_delete_it_self_status_code(self):
+    def test_user_cant_delete_it_self_status_code(self) -> None:
         self.assertEqual(self.resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
 
-    def test_authenticated_user_cant_delete_another_user_status_code(self):
+    def test_authenticated_user_cant_delete_another_user_status_code(self) -> None:
         create_test_user = TestUser.create_test_user()
         current_user_id = create_test_user["user_response"].data["id"]
         resp = create_test_user["authenticated_client"].delete(
@@ -238,7 +239,7 @@ class UserCantDelete(TestCase):
         )
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
 
-    def test_unauthorized_user_cant_delete_a_user_status_code(self):
+    def test_unauthorized_user_cant_delete_a_user_status_code(self) -> None:
         resp = APIClient().delete(
             f"/api/users/{self.current_user_id}/", content_type="application/json"
         )

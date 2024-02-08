@@ -5,7 +5,7 @@ class Client:
     @staticmethod
     def get_client(
         authenticated_client: APIClient = APIClient(), authenticate_client: bool = False
-    ):
+    ) -> APIClient:
         """
 
         :param authenticated_client:

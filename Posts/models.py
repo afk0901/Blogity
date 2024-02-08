@@ -1,10 +1,11 @@
 from django.db import models
 
 from Users.models import CustomUser
+from django.db.models import QuerySet
 
 
 class PostManager(models.Manager):
-    def get_all_posts_and_related_comments(self):
+    def get_all_posts_and_related_comments(self) -> QuerySet["Comment"]:
         # If the field changes, we just change it here.
         return self.all().prefetch_related("comments")
 
@@ -20,7 +21,7 @@ class Post(models.Model):
     objects = models.Manager()
     post_manager = PostManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.title} published on {self.publish_date}"
 
 
@@ -32,5 +33,5 @@ class Comment(models.Model):
     content = models.TextField()
     publish_date = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Comment published on {self.publish_date}"

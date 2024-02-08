@@ -16,7 +16,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
     GET requests will always pass as anybody can read the object.
     """
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, view) -> bool:
         """
         Preventing the user to create a POST for another author than
         themselves.
@@ -33,7 +33,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
             return request.data["author_id"] == request.user.id
         return True
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, obj) -> bool:
         """
         Preventing a user that is not the author of an object,
         to modify the object.
