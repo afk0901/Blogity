@@ -62,13 +62,13 @@ class TestBlogPost:
     @staticmethod
     def create_test_blog_post_request_data_and_response(
             client: APIClient, user: CustomUser, number_of_posts: int = 1
-    ) -> list[dict[str, dict[str, int | str] | Response]]:
+    ) -> list[dict[str, dict[str, int | str] | ]]:
         # Request data and response array are arranged in the same order as the requests are made.
         request_data_responses = []
 
         for request_data in range(0, number_of_posts):
             request_data = model_to_dict(baker.prepare(Post, author_id=user))
-            response = client.post("/api/posts/", data=request_data, format="json")
+            response = client.post("/api/posts/", data=request_data, content_type='application/json')
             request_data_responses.append(
                 {"request_data": request_data, "response": response}
             )
