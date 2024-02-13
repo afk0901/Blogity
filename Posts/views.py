@@ -7,7 +7,7 @@ from Posts.serializers import (CommentSerializer, PostSerializer,
                                PostWithCommentsSerializer)
 from django.db.models import QuerySet
 
-from typing import Union, List, Type
+from typing import Type
 
 
 class PostViewSet(viewsets.ModelViewSet):

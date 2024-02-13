@@ -4,6 +4,10 @@ users.
 What operations they have access to and what they can do.
 """
 from rest_framework import permissions
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.request import Request
+
+from Posts.models import Post, Comment
 
 
 class IsAuthorAnyRead(permissions.BasePermission):
@@ -16,7 +20,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
     GET requests will always pass as anybody can read the object.
     """
 
-    def has_permission(self, request, view) -> bool:
+    def has_permission(self, request: Request, view: ModelViewSet) -> bool:
         """
         Preventing the user to create a POST for another author than
         themselves.
@@ -29,11 +33,12 @@ class IsAuthorAnyRead(permissions.BasePermission):
         permissions.
         """
 
-        if "author_id" in request.data and request.method == "POST":
-            return request.data["author_id"] == request.user.id
+        if request.method == "POST":
+            # Casting to int to prevent type mismatch.
+            return str(request.data.get("author_id")) == str(request.user.id)
         return True
 
-    def has_object_permission(self, request, view, obj) -> bool:
+    def has_object_permission(self, request: Request, view: ModelViewSet, obj: Post | Comment) -> bool:
         """
         Preventing a user that is not the author of an object,
         to modify the object.
@@ -46,10 +51,13 @@ class IsAuthorAnyRead(permissions.BasePermission):
         :param obj: Object that has an author attribute
         :return: True if user is the author of the object,
         granting permission, otherwise False, not granting
-        permissions.
+        permissions. Ensuring that the user can't change the
+        id of author attribute and therefore make post as
+        another user.
         """
 
         if request.method == "GET":
             return True
         else:
-            return obj.author_id == request.user
+            # Casting to int to prevent type mismatch.
+            return str(obj.author_id.id) == str(request.user.id)

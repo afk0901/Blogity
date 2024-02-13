@@ -12,7 +12,8 @@ from Posts.models import Comment, Post
 from Users.models import CustomUser
 from Users.tests import TestUser
 
-from django.core.handlers.wsgi import WSGIRequest
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 """
 This test suite tests the PostViewSet.
@@ -25,7 +26,7 @@ problems.
 class TestBlogPost:
     @staticmethod
     def setup_user_posts_and_client(
-            authenticate_client: bool, number_of_posts=1
+            authenticate_client: bool, number_of_posts: int = 1
     ) -> APIClient:
         """
         Will always create a blog post with authenticated user.
@@ -42,7 +43,7 @@ class TestBlogPost:
 
     @staticmethod
     def setup_user_posts_get_authenticated_client_and_post_id(
-            authenticate_client: bool, number_of_posts=1
+            authenticate_client: bool, number_of_posts: int = 1
     ) -> tuple[APIClient, Post, APIClient]:
         """
         Sets up blog post and the authenticated client if we want the client to be authenticated.
@@ -60,8 +61,8 @@ class TestBlogPost:
 
     @staticmethod
     def create_test_blog_post_request_data_and_response(
-            client: APIClient, user: CustomUser, number_of_posts=1
-    ):
+            client: APIClient, user: CustomUser, number_of_posts: int = 1
+    ) -> list[dict[str, dict[str, int | str] | Response]]:
         # Request data and response array are arranged in the same order as the requests are made.
         request_data_responses = []
 
@@ -74,7 +75,8 @@ class TestBlogPost:
         return request_data_responses
 
     @staticmethod
-    def create_test_user_and_create_blog_post(number_of_posts=1):
+    def create_test_user_and_create_blog_post(number_of_posts: int = 1) -> dict[str, list[dict[str, dict[str, int | str] | Response]] |
+                                                                                                                        APIClient]:
         """
         Creates a new user, authenticates the user and creates a blog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
@@ -98,9 +100,8 @@ class TestBlogPost:
 class TestBlogComment:
     @staticmethod
     def create_comment_post_response(
-            client: APIClient, post: Post, number_of_comments=1
-    ) -> list[dict[str, dict[str, int | str] | any]]:
-
+            client: APIClient, post: Post, number_of_comments: int = 1
+    ) -> list[dict[str, dict[str, int | str] | Response]]:
         user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
         post_id = post.id
         request_data_and_responses = []
@@ -120,7 +121,7 @@ class TestBlogComment:
 
     @staticmethod
     def setup_user_posts_get_authenticated_user_create_comment_client_post(
-            authenticate: bool, number_of_comments=1
+            authenticate: bool, number_of_comments: int = 1
     ) -> tuple[APIClient, Post]:
         client_and_post_id = (
             TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(

@@ -32,7 +32,7 @@ class PostQuerySetTest(SimpleTestCase):
 
     @patch("Posts.models.Post.post_manager.get_all_posts_and_related_comments")
     def test_get_queryset_return_related_comments(
-        self, mock_get_all_posts_and_related_comments
+            self, mock_get_all_posts_and_related_comments
     ) -> None:
         self.viewset.request.query_params = {"include_comments": "true"}
         self.viewset.get_queryset()

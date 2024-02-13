@@ -15,7 +15,7 @@ from Users.models import CustomUser
 
 class TestUser:
     @staticmethod
-    def create_user_response() -> dict[str, APIClient]:
+    def create_user_response() -> dict[str, dict[str, str | int] | APIClient]:
         """
         :return: Post_data and response
         """
@@ -27,7 +27,7 @@ class TestUser:
         }
 
     @staticmethod
-    def authenticate_user_client(username: str, password: str) -> dict[str, APIClient]:
+    def authenticate_user_client(username: str | int, password: str | int) -> dict[str, APIClient]:
         client = APIClient()
         response = client.post(
             "/api/token/", {"username": username, "password": password}, format="json"
@@ -41,7 +41,7 @@ class TestUser:
         }
 
     @staticmethod
-    def create_test_user(authenticated: bool = True) -> dict[str, dict[str, APIClient] | APIClient | str]:
+    def create_test_user(authenticated: bool = True):
         # Create the user
         create_user_response = TestUser.create_user_response()
         user_post_data = create_user_response["post_data"]
@@ -69,7 +69,7 @@ class TestUser:
         }
 
     @staticmethod
-    def password_is_hashed(username: str) -> Match[str]:
+    def password_is_hashed(username: str) -> Match[str] | None:
         user = CustomUser.objects.get(username=username)
         # Starts with the hash prefix, then iterations (some numbers)
         # and then the hash itself that can be anything.

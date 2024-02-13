@@ -6,7 +6,7 @@ from rest_framework.test import APIRequestFactory
 from Permissions.author_permissions import IsAuthorAnyRead
 from Users.models import CustomUser
 
-from django.core.handlers.wsgi import WSGIRequest
+from rest_framework.request import Request
 
 
 class AuthorPermissionTest(SimpleTestCase):
@@ -38,7 +38,7 @@ class AuthorPermissionTest(SimpleTestCase):
 
         self.detail_view_url = "/some-url/1/"
 
-    def post_request(self, user: CustomUser) -> WSGIRequest:
+    def post_request(self, user: CustomUser) -> Request:
         """
          Simulates a post-request without performing one.
         :param user: The user performing the request
