@@ -11,9 +11,9 @@ from Authentication.client import Client
 from Posts.models import Comment, Post
 from Users.models import CustomUser
 from Users.tests import TestUser
+from django.http import HttpResponse
+from typing import TypedDict
 
-from rest_framework.request import Request
-from rest_framework.response import Response
 
 """
 This test suite tests the PostViewSet.
@@ -62,7 +62,7 @@ class TestBlogPost:
     @staticmethod
     def create_test_blog_post_request_data_and_response(
             client: APIClient, user: CustomUser, number_of_posts: int = 1
-    ) -> list[dict[str, dict[str, int | str] | ]]:
+    ) -> list[dict[str, dict[str, int | str] | dict[str, int | str]]]:
         # Request data and response array are arranged in the same order as the requests are made.
         request_data_responses = []
 
@@ -75,7 +75,7 @@ class TestBlogPost:
         return request_data_responses
 
     @staticmethod
-    def create_test_user_and_create_blog_post(number_of_posts: int = 1) -> dict[str, list[dict[str, dict[str, int | str] | Response]] |
+    def create_test_user_and_create_blog_post(number_of_posts: int = 1) -> dict[str, list[dict[str, dict[str, int | str] | dict]] |
                                                                                                                         APIClient]:
         """
         Creates a new user, authenticates the user and creates a blog post.
@@ -100,8 +100,8 @@ class TestBlogPost:
 class TestBlogComment:
     @staticmethod
     def create_comment_post_response(
-            client: APIClient, post: Post, number_of_comments: int = 1
-    ) -> list[dict[str, dict[str, int | str] | Response]]:
+            client: APIClient, post, number_of_comments: int = 1
+    ): #-> list[ dict[str, dict[str, int | str]] ]:
         user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
         post_id = post.id
         request_data_and_responses = []

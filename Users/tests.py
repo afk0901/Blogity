@@ -2,20 +2,37 @@ import datetime
 import re
 from re import Match
 from http import HTTPStatus
+from typing import TypedDict
 
 from django.forms import model_to_dict
 from django.test import TestCase
 from model_bakery import baker
 from parameterized import parameterized_class
+from rest_framework.response import Response
 from rest_framework.test import APIClient
 
 from Authentication.client import Client
 from Users.models import CustomUser
 
 
+class AuthenticationResponseClientTypedDict(TypedDict):
+    authentication_response: Response
+    client: APIClient
+
+class UserResponsePostDataCustomUser(TypedDict){
+            user_response: ,
+            "post_data": user_post_data,
+            "custom_user_instance": CustomUser.objects.get(
+                username=user_post_data["username"]
+            ),
+            "authenticate_response": authenticate_response,
+            "authenticated_client": client,
+        }
+
+
 class TestUser:
     @staticmethod
-    def create_user_response() -> dict[str, dict[str, str | int] | APIClient]:
+    def create_user_response() -> dict[str, dict[str, str | int] | Response]:
         """
         :return: Post_data and response
         """
@@ -27,12 +44,13 @@ class TestUser:
         }
 
     @staticmethod
-    def authenticate_user_client(username: str | int, password: str | int) -> dict[str, APIClient]:
+    def authenticate_user_client(username: str | int, password: str | int) -> AuthenticationResponseClientTypedDict:
         client = APIClient()
         response = client.post(
             "/api/token/", {"username": username, "password": password}, format="json"
         )
         authentication_token = response.data["access"]
+
         return {
             "authentication_response": response,
             "client": APIClient(
