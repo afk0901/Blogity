@@ -14,12 +14,12 @@ class PostManager(models.Manager['Post']):
 
 
 class Post(models.Model):
-    author_id: ForeignKey[Never, Never] = models.ForeignKey(
+    author_id = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="posts"
     )
-    title: CharField[Never, Never] = models.CharField(max_length=100)
-    content: TextField[Never, Never] = models.TextField()
-    publish_date: DateTimeField[Never, Never] = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    publish_date = models.DateTimeField(auto_now=True)
 
     objects = models.Manager()
     post_manager = PostManager()
@@ -29,12 +29,12 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    post: ForeignKey[Never, Never] = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
-    author_id: ForeignKey[Never, Never] = models.ForeignKey(
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    author_id = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="comments"
     )
-    content: TextField[Never, Never] = models.TextField()
-    publish_date: DateTimeField[Never, Never] = models.DateTimeField(auto_now=True)
+    content = models.TextField()
+    publish_date = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return f"Comment published on {self.publish_date}"

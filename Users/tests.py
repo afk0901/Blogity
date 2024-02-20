@@ -15,19 +15,15 @@ from Authentication.client import Client
 from Users.models import CustomUser
 
 
-class AuthenticationResponseClientTypedDict(TypedDict):
+class AuthenticationResponseClient(TypedDict):
     authentication_response: Response
     client: APIClient
 
-class UserResponsePostDataCustomUser(TypedDict){
-            user_response: ,
-            "post_data": user_post_data,
-            "custom_user_instance": CustomUser.objects.get(
-                username=user_post_data["username"]
-            ),
-            "authenticate_response": authenticate_response,
-            "authenticated_client": client,
-        }
+
+class UserResponsePostDataCustomUser(AuthenticationResponseClient):
+    user_response: dict[str, str | int] | Response
+    post_data: dict[str, str | int] | Response
+    custom_user_instance: CustomUser
 
 
 class TestUser:
@@ -44,7 +40,7 @@ class TestUser:
         }
 
     @staticmethod
-    def authenticate_user_client(username: str | int, password: str | int) -> AuthenticationResponseClientTypedDict:
+    def authenticate_user_client(username: str | int, password: str | int) -> AuthenticationResponseClient:
         client = APIClient()
         response = client.post(
             "/api/token/", {"username": username, "password": password}, format="json"
@@ -59,7 +55,7 @@ class TestUser:
         }
 
     @staticmethod
-    def create_test_user(authenticated: bool = True):
+    def create_test_user(authenticated: bool = True) -> UserResponsePostDataCustomUser:
         # Create the user
         create_user_response = TestUser.create_user_response()
         user_post_data = create_user_response["post_data"]
@@ -82,8 +78,8 @@ class TestUser:
             "custom_user_instance": CustomUser.objects.get(
                 username=user_post_data["username"]
             ),
-            "authenticate_response": authenticate_response,
-            "authenticated_client": client,
+            "authentication_response": authenticate_response,
+            "client": client,
         }
 
     @staticmethod
@@ -106,6 +102,10 @@ class CreatedUserSuccessfullyTestCases(TestCase):
     """
     Makes a post-request and checks if the user has been created successfully.
     """
+    # For type checkers and for clarity.
+    authenticate: bool
+    response: Response
+    request_data: dict[str, str | int]
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -136,7 +136,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 
 class AuthenticateUserTestCases(TestCase):
     def setUp(self) -> None:
-        self.auth_response = TestUser.create_test_user()["authenticate_response"]
+        self.auth_response = TestUser.create_test_user()["authentication_response"]
 
     def test_user_created_and_authenticated(self) -> None:
         self.assertContains(self.auth_response, "access", status_code=HTTPStatus.OK)
@@ -154,7 +154,7 @@ class GetIndividualUser(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         create_test_user = TestUser.create_test_user()
-        authenticated_client = create_test_user["authenticated_client"]
+        authenticated_client = create_test_user["client"]
         client = Client.get_client(authenticated_client, cls.authenticate)
         user_id = CustomUser.objects.last().id
         cls.resp = client.get(f"/api/users/{user_id}/")
@@ -174,7 +174,7 @@ class UpdateIndividualUser(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         test_user = TestUser.create_test_user()
-        authenticated_client = test_user["authenticated_client"]
+        authenticated_client = test_user["client"]
         cls.user_id = CustomUser.objects.last().id
         cls.old_user = authenticated_client.get(f"/api/users/{cls.user_id}/")
         cls.new_user = model_to_dict(
@@ -220,7 +220,7 @@ class UpdateIndividualUser(TestCase):
 
     def test_only_authorized_owner_can_update(self) -> None:
         # User that has a different user id than id about to be updated.
-        updated_user_response = TestUser.create_test_user()["authenticated_client"].put(
+        updated_user_response = TestUser.create_test_user()["client"].put(
             f"/api/users/{self.user_id}/",
             data=self.new_user,
             content_type="application/json",
@@ -242,7 +242,7 @@ class UserCantDelete(TestCase):
     def setUpTestData(cls) -> None:
         create_test_user = TestUser.create_test_user()
         cls.current_user_id = create_test_user["user_response"].data["id"]
-        cls.resp = create_test_user["authenticated_client"].delete(
+        cls.resp = create_test_user["client"].delete(
             f"/api/users/{cls.current_user_id}/"
         )
 
@@ -252,7 +252,7 @@ class UserCantDelete(TestCase):
     def test_authenticated_user_cant_delete_another_user_status_code(self) -> None:
         create_test_user = TestUser.create_test_user()
         current_user_id = create_test_user["user_response"].data["id"]
-        resp = create_test_user["authenticated_client"].delete(
+        resp = create_test_user["client"].delete(
             f"/api/users/{current_user_id - 1}/"
         )
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)

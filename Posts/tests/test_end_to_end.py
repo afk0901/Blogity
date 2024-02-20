@@ -11,8 +11,7 @@ from Authentication.client import Client
 from Posts.models import Comment, Post
 from Users.models import CustomUser
 from Users.tests import TestUser
-from django.http import HttpResponse
-from typing import TypedDict
+from rest_framework.response import Response
 
 
 """
@@ -37,7 +36,7 @@ class TestBlogPost:
         """
         authenticated_client = TestBlogPost.create_test_user_and_create_blog_post(
             number_of_posts=number_of_posts
-        )["authenticated_client"]
+        )["client"]
         client = Client.get_client(authenticated_client, authenticate_client)
         return client
 
@@ -68,7 +67,7 @@ class TestBlogPost:
 
         for request_data in range(0, number_of_posts):
             request_data = model_to_dict(baker.prepare(Post, author_id=user))
-            response = client.post("/api/posts/", data=request_data, content_type='application/json')
+            response = client.post("/api/posts/", data=json.dumps(request_data), content_type='application/json')
             request_data_responses.append(
                 {"request_data": request_data, "response": response}
             )
@@ -83,7 +82,7 @@ class TestBlogPost:
         """
         user_and_client = TestUser.create_test_user()
         user = user_and_client["custom_user_instance"]
-        authenticated_client = user_and_client["authenticated_client"]
+        authenticated_client = user_and_client["client"]
 
         request_data_and_responses = (
             TestBlogPost.create_test_blog_post_request_data_and_response(
@@ -93,14 +92,14 @@ class TestBlogPost:
 
         return {
             "request_data_responses": request_data_and_responses,
-            "authenticated_client": authenticated_client,
+            "client": authenticated_client,
         }
 
 
 class TestBlogComment:
     @staticmethod
     def create_comment_post_response(
-            client: APIClient, post, number_of_comments: int = 1
+            client: APIClient, post : Post, number_of_comments: int = 1
     ): #-> list[ dict[str, dict[str, int | str]] ]:
         user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
         post_id = post.id
@@ -123,6 +122,7 @@ class TestBlogComment:
     def setup_user_posts_get_authenticated_user_create_comment_client_post(
             authenticate: bool, number_of_comments: int = 1
     ) -> tuple[APIClient, Post]:
+
         client_and_post_id = (
             TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(
                 authenticate
@@ -162,6 +162,12 @@ class AuthenticatedUserCreatedPostSuccessfullyTest(TestCase):
 
 
 class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
+    response: Response
+    post_id: int
+    request_data: dict[str, int | str]
+    update_url: str
+    update_client: APIClient
+
     @classmethod
     def setUpTestData(cls) -> None:
         create_test_user_and_create_blog_post = (
@@ -170,13 +176,11 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         request_data_response = create_test_user_and_create_blog_post[
             "request_data_responses"
         ]
-        cls.post_id = Post.objects.last().id
+        cls.post_id = Post.objects.latest("id").id
 
         cls.request_data = request_data_response[0]["request_data"]
         cls.update_url = f"/api/posts/{cls.post_id}/"
-        cls.update_client = create_test_user_and_create_blog_post[
-            "authenticated_client"
-        ]
+        cls.update_client = create_test_user_and_create_blog_post["client"]
 
     def test_update_title(self) -> None:
         request_data = self.request_data.copy()
@@ -202,7 +206,7 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         self.assertNotEqual(self.request_data["content"], response.data["content"])
 
     def test_only_owner_can_update(self) -> None:
-        updated_user_response = TestUser.create_test_user()["authenticated_client"].put(
+        updated_user_response = TestUser.create_test_user()["client"].put(
             self.update_url,
             data=json.dumps(self.request_data),
             content_type="application/json",
@@ -229,11 +233,14 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
     ],
 )
 class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
+    authenticate: bool
+    response: Response
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
         client = TestBlogPost.setup_user_posts_and_client(cls.authenticate)
-        post_id = Post.objects.last().id
+        post_id = Post.objects.latest("id").id
         cls.response = client.get(f"/api/posts/{post_id}/")
 
     def test_post_retrieved_successfully_status_code(self) -> None:
@@ -261,6 +268,9 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
     ],
 )
 class CreateUserAndGetAllPostsTest(TestCase):
+    authenticate: bool
+    response: Response
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -289,6 +299,9 @@ class CreateUserAndGetAllPostsTest(TestCase):
     ],
 )
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
+    authenticate: bool
+    response: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         (
@@ -312,13 +325,17 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
 
 
 class CreateUserCreatePostCreateComments(TestCase):
+    response: Response
+    request_data: dict[str, int | str]
+    response_data: dict[str, int | str]
+
     @classmethod
     def setUpTestData(cls) -> None:
         # To create posts, we need to be authenticated so that's why hardcoded to true.
         authenticated_client = TestBlogPost.setup_user_posts_and_client(
             True, number_of_posts=1
         )
-        post = Post.objects.last()
+        post = Post.objects.latest("id")
         response_and_request_data = TestBlogComment.create_comment_post_response(
             authenticated_client, post, number_of_comments=1
         )[0]
@@ -356,6 +373,10 @@ class CreateUserCreatePostCreateComments(TestCase):
     ],
 )
 class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
+
+    authenticate: bool
+    response: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         (
@@ -384,6 +405,10 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
     ],
 )
 class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
+    authenticate: bool
+    response: Response
+
+
     @classmethod
     def setUpTestData(cls) -> None:
         client_and_post_id = (
@@ -417,6 +442,12 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
 
 
 class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
+
+    old_comment: Response
+    updated_comment_response: Response
+    new_comment: dict[str, int | str]
+    update_url: str
+
     @classmethod
     def setUpTestData(cls) -> None:
         (
@@ -425,7 +456,7 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
         ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
             authenticate=True
         )
-        comment_id = Comment.objects.last().id
+        comment_id = Comment.objects.latest("id").id
         cls.old_comment = client.get(f"/api/posts/{post.id}/comments/{comment_id}/")
         author = baker.prepare(CustomUser, id=cls.old_comment.data["author_id"])
         cls.new_comment = model_to_dict(
@@ -454,7 +485,7 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
         )
 
     def test_only_owner_can_update(self) -> None:
-        updated_user_response = TestUser.create_test_user()["authenticated_client"].put(
+        updated_user_response = TestUser.create_test_user()["client"].put(
             self.update_url,
             data=json.dumps(self.new_comment),
             content_type="application/json",
@@ -472,12 +503,16 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
 
 
 class CreateUserCreatePostDeletePost(TestCase):
+
+    post_id: int
+    resp: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         authenticated_client = TestBlogPost.setup_user_posts_and_client(
             True, number_of_posts=3
         )
-        cls.post_id = Post.objects.last().id
+        cls.post_id = Post.objects.latest("id").id
         cls.resp = authenticated_client.delete(f"/api/posts/{cls.post_id}/")
 
     def test_delete_post_status(self) -> None:
@@ -488,7 +523,7 @@ class CreateUserCreatePostDeletePost(TestCase):
         self.assertTrue(post_deleted)
 
     def test_only_owner_can_delete(self) -> None:
-        resp = TestUser.create_test_user()["authenticated_client"].delete(
+        resp = TestUser.create_test_user()["client"].delete(
             f"/api/posts/{self.post_id - 1}/"
         )
 
@@ -496,6 +531,13 @@ class CreateUserCreatePostDeletePost(TestCase):
 
 
 class CreateUserCreatePostDeleteIndividualComment(TestCase):
+
+    # For type checkers and for clarity.
+
+    resp: Response
+    last_comment_id: int
+    post_id: int
+
     @classmethod
     def setUpTestData(cls) -> None:
         (
@@ -504,7 +546,7 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
         ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
             authenticate=True, number_of_comments=3
         )
-        cls.last_comment_id = Comment.objects.last().id
+        cls.last_comment_id = Comment.objects.latest("id").id
         cls.post_id = post.id
         cls.resp = client.delete(
             f"/api/posts/{cls.post_id}/comments/{cls.last_comment_id}/"
@@ -518,7 +560,7 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
         self.assertTrue(comment_deleted)
 
     def test_only_owner_can_delete(self) -> None:
-        resp = TestUser.create_test_user()["authenticated_client"].delete(
+        resp = TestUser.create_test_user()["client"].delete(
             f"/api/posts/{self.post_id}/comments/{self.last_comment_id - 1}/"
         )
 
