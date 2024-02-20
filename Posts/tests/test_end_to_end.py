@@ -12,6 +12,9 @@ from Posts.models import Comment, Post
 from Users.models import CustomUser
 from Users.tests import TestUser
 from rest_framework.response import Response
+from Types.types import AuthenticationResponseClientType
+
+from typing import TypedDict
 
 
 """
@@ -20,6 +23,16 @@ Using setUpClass because we don't want to create a new
 record in the test database many times which may create
 problems.
 """
+
+
+class RequestDataResponse(TypedDict):
+    request_data: dict[str, int | str]
+    response: Response
+
+
+class RequestDataResponsesListClient(RequestDataResponse):
+    request_data_responses:  list[RequestDataResponse]
+    client: APIClient
 
 
 class TestBlogPost:
@@ -61,7 +74,7 @@ class TestBlogPost:
     @staticmethod
     def create_test_blog_post_request_data_and_response(
             client: APIClient, user: CustomUser, number_of_posts: int = 1
-    ) -> list[dict[str, dict[str, int | str] | dict[str, int | str]]]:
+    ) -> list[RequestDataResponse]:
         # Request data and response array are arranged in the same order as the requests are made.
         request_data_responses = []
 
@@ -74,8 +87,7 @@ class TestBlogPost:
         return request_data_responses
 
     @staticmethod
-    def create_test_user_and_create_blog_post(number_of_posts: int = 1) -> dict[str, list[dict[str, dict[str, int | str] | dict]] |
-                                                                                                                        APIClient]:
+    def create_test_user_and_create_blog_post(number_of_posts: int = 1) -> RequestDataResponsesListClient:
         """
         Creates a new user, authenticates the user and creates a blog post.
         :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}

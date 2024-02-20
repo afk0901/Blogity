@@ -2,7 +2,6 @@ import datetime
 import re
 from re import Match
 from http import HTTPStatus
-from typing import TypedDict
 
 from django.forms import model_to_dict
 from django.test import TestCase
@@ -13,22 +12,28 @@ from rest_framework.test import APIClient
 
 from Authentication.client import Client
 from Users.models import CustomUser
+from typing import TypedDict
 
 
-class AuthenticationResponseClient(TypedDict):
+class AuthenticationResponseClientType(TypedDict):
     authentication_response: Response
     client: APIClient
 
 
-class UserResponsePostDataCustomUser(AuthenticationResponseClient):
-    user_response: dict[str, str | int] | Response
-    post_data: dict[str, str | int] | Response
+class PostDataResponse(TypedDict):
+    post_data: dict[str, int | str]
+    response: Response
+
+
+class UserResponsePostDataCustomUserType(AuthenticationResponseClientType):
+    user_response: Response
+    post_data: dict[str, str | int]
     custom_user_instance: CustomUser
 
 
 class TestUser:
     @staticmethod
-    def create_user_response() -> dict[str, dict[str, str | int] | Response]:
+    def create_user_response() -> PostDataResponse:
         """
         :return: Post_data and response
         """
@@ -40,7 +45,7 @@ class TestUser:
         }
 
     @staticmethod
-    def authenticate_user_client(username: str | int, password: str | int) -> AuthenticationResponseClient:
+    def authenticate_user_client(username: str | int, password: str | int) -> AuthenticationResponseClientType:
         client = APIClient()
         response = client.post(
             "/api/token/", {"username": username, "password": password}, format="json"
@@ -55,7 +60,7 @@ class TestUser:
         }
 
     @staticmethod
-    def create_test_user(authenticated: bool = True) -> UserResponsePostDataCustomUser:
+    def create_test_user(authenticated: bool = True) -> UserResponsePostDataCustomUserType:
         # Create the user
         create_user_response = TestUser.create_user_response()
         user_post_data = create_user_response["post_data"]
@@ -151,12 +156,15 @@ class AuthenticateUserTestCases(TestCase):
     ],
 )
 class GetIndividualUser(TestCase):
+    authenticate: bool
+    resp: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         create_test_user = TestUser.create_test_user()
         authenticated_client = create_test_user["client"]
         client = Client.get_client(authenticated_client, cls.authenticate)
-        user_id = CustomUser.objects.last().id
+        user_id = CustomUser.objects.latest("id").id
         cls.resp = client.get(f"/api/users/{user_id}/")
 
     def test_get_individual_user_status_code(self) -> None:
@@ -171,11 +179,16 @@ class GetIndividualUser(TestCase):
 
 
 class UpdateIndividualUser(TestCase):
+    user_id: int
+    new_user: dict[str, int | str]
+    updated_user_response: Response
+    old_user: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         test_user = TestUser.create_test_user()
         authenticated_client = test_user["client"]
-        cls.user_id = CustomUser.objects.last().id
+        cls.user_id = CustomUser.objects.latest("id").id
         cls.old_user = authenticated_client.get(f"/api/users/{cls.user_id}/")
         cls.new_user = model_to_dict(
             baker.prepare(CustomUser, id=1, last_login=datetime.datetime.now())
@@ -238,6 +251,9 @@ class UpdateIndividualUser(TestCase):
 
 
 class UserCantDelete(TestCase):
+    current_user_id: int
+    resp: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         create_test_user = TestUser.create_test_user()
