@@ -12,10 +12,8 @@ from Posts.models import Comment, Post
 from Users.models import CustomUser
 from Users.tests import TestUser
 from rest_framework.response import Response
-from Types.types import AuthenticationResponseClientType
 
 from typing import TypedDict
-
 
 """
 This test suite tests the PostViewSet.
@@ -33,6 +31,13 @@ class RequestDataResponse(TypedDict):
 class RequestDataResponsesListClient(RequestDataResponse):
     request_data_responses:  list[RequestDataResponse]
     client: APIClient
+
+
+class BlogPostData(TypedDict):
+    id: int
+    title: str
+    content: str
+    author_id: int
 
 
 class TestBlogPost:
@@ -68,7 +73,7 @@ class TestBlogPost:
             True, number_of_posts
         )
         client = Client.get_client(authenticated_client, authenticate_client)
-        last_post = Post.objects.last()
+        last_post = Post.objects.latest("id")
         return client, last_post, authenticated_client
 
     @staticmethod
@@ -78,12 +83,10 @@ class TestBlogPost:
         # Request data and response array are arranged in the same order as the requests are made.
         request_data_responses = []
 
-        for request_data in range(0, number_of_posts):
-            request_data = model_to_dict(baker.prepare(Post, author_id=user))
+        for _ in range(0, number_of_posts):
+            request_data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
             response = client.post("/api/posts/", data=json.dumps(request_data), content_type='application/json')
-            request_data_responses.append(
-                {"request_data": request_data, "response": response}
-            )
+            request_data_responses.append({"request_data": request_data, "response": response})
         return request_data_responses
 
     @staticmethod
@@ -111,9 +114,10 @@ class TestBlogPost:
 class TestBlogComment:
     @staticmethod
     def create_comment_post_response(
-            client: APIClient, post : Post, number_of_comments: int = 1
-    ): #-> list[ dict[str, dict[str, int | str]] ]:
-        user = baker.prepare(CustomUser, id=CustomUser.objects.last().id)
+            client: APIClient, post: Post, number_of_comments: int = 1
+    ) -> list[RequestDataResponse]:
+
+        user = baker.prepare(CustomUser, id=CustomUser.objects.latest("id").id)
         post_id = post.id
         request_data_and_responses = []
 

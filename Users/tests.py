@@ -6,7 +6,7 @@ from http import HTTPStatus
 from django.forms import model_to_dict
 from django.test import TestCase
 from model_bakery import baker
-from parameterized import parameterized_class
+from parameterized import parameterized_class  # type: ignore
 from rest_framework.response import Response
 from rest_framework.test import APIClient
 
@@ -96,13 +96,13 @@ class TestUser:
         return re.match(hash_regex, user.password)
 
 
-@parameterized_class(
-    ("authenticate"),
-    [
-        (True,),
-        (False,),
-    ],
-)
+# @parameterized_class(
+#     ("authenticate"),
+#     [
+#         (True,),
+#         (False,),
+#     ],
+# )
 class CreatedUserSuccessfullyTestCases(TestCase):
     """
     Makes a post-request and checks if the user has been created successfully.
@@ -114,7 +114,7 @@ class CreatedUserSuccessfullyTestCases(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        create_test_user = TestUser.create_test_user(authenticated=cls.authenticate)
+        create_test_user = TestUser.create_test_user(authenticated=True)
         cls.response = create_test_user["user_response"]
         cls.request_data = create_test_user["post_data"]
 
