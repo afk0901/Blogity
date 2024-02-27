@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from django.test import SimpleTestCase
 
@@ -27,20 +27,20 @@ class PostSerializerTest(SimpleTestCase):
 
 class PostQuerySetTest(SimpleTestCase):
     def setUp(self) -> None:
+        self.mock_request = type("MockRequest", (), {})()
         self.viewset = PostViewSet()
+        self.viewset.request = self.mock_request
 
     @patch("Posts.models.Post.post_manager.get_all_posts_and_related_comments")
     def test_get_queryset_return_related_comments(
-            self, mock_get_all_posts_and_related_comments
+            self, mock_get_all_posts_and_related_comments: MagicMock
     ) -> None:
-        self.viewset.request = type("MockRequest", (), {})()
-        self.viewset.request.query_params = {"include_comments": "true"}
+        self.mock_request.query_params = {"include_comments": "true"}
         self.viewset.get_queryset()
         mock_get_all_posts_and_related_comments.assert_called_once()
 
     @patch("Posts.models.Post.objects.all")
-    def test_get_queryset_return_all_posts(self, mock_objects_all) -> None:
-        self.viewset.request = type("MockRequest", (), {})()
-        self.viewset.request.query_params = {}
+    def test_get_queryset_return_all_posts(self, mock_objects_all: MagicMock) -> None:
+        self.mock_request.query_params = {}
         self.viewset.get_queryset()
         mock_objects_all.assert_called_once()
