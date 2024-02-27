@@ -32,6 +32,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsAuthorAnyRead]
 
-    def get_queryset(self) -> QuerySet["Post"]:
-        post_id = self.kwargs.get("post_pk")
+    def get_queryset(self) -> QuerySet["Comment"]:
+        post_id = str(self.kwargs.get("post_pk"))
         return Comment.objects.filter(post_id=post_id)
