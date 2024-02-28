@@ -2,6 +2,7 @@ from unittest.mock import Mock
 
 from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 
 from Permissions.author_permissions import IsAuthorAnyRead
 from Users.models import CustomUser
@@ -52,25 +53,23 @@ class AuthorPermissionTest(SimpleTestCase):
         return request
 
     def test_has_object_permission_owner(self) -> None:
-        # User should have full permission over the object if the user is the author
         request = self.factory.get(self.list_view_url)
         request.user = self.user
-        # Even tho this is a get request, the data attribute will be included
-        # leading to a 500 error if it does not contain the desired key.
+        request.data = {}
         request.data = {}
         self.assertTrue(
-            self.permission.has_object_permission(request, "", self.author_object)
+            self.permission.has_object_permission(request, APIView(), self.author_object)
         )
 
     def test_has_permission_owner(self) -> None:
         # User should be the author of the object and to be able to have full list
         # permissions.
         request = self.post_request(self.user)
-        self.assertTrue(self.permission.has_permission(request, ""))
+        self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_not_owner_deny_add_to_list(self) -> None:
         request = self.post_request(self.other_user)
-        self.assertFalse(self.permission.has_permission(request, ""))
+        self.assertFalse(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_user(self) -> None:
         # Because everybody should be able to have read access
@@ -79,7 +78,7 @@ class AuthorPermissionTest(SimpleTestCase):
         # We put in some author data because it should not matter in this case
         # if the consumer sends data with the GET request.
         request.data = {"author": 18, "post": 4, "content": "Esta bem!"}
-        self.assertTrue(self.permission.has_permission(request, ""))
+        self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_other_user(self) -> None:
         # Because everybody should be able to have read access, not just the user that
@@ -87,7 +86,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request = self.factory.get(self.list_view_url)
         request.user = self.other_user
         request.data = {}
-        self.assertTrue(self.permission.has_permission(request, ""))
+        self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_user_request_data_but_no_author(self) -> None:
         # Because everybody should be able to have read access
@@ -96,14 +95,14 @@ class AuthorPermissionTest(SimpleTestCase):
         # We put in some author data because it should not matter in this case
         # if the consumer sends data with the GET request.
         request.data = {}
-        self.assertTrue(self.permission.has_permission(request, ""))
+        self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_true_user_details(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.user
         request.data = {}
         self.assertTrue(
-            self.permission.has_object_permission(request, "", self.author_object)
+            self.permission.has_object_permission(request, APIView(), self.author_object)
         )
 
     def test_has_permission_get_true_true_other_user_details(self) -> None:
@@ -111,5 +110,5 @@ class AuthorPermissionTest(SimpleTestCase):
         request.user = self.other_user
         request.data = {}
         self.assertTrue(
-            self.permission.has_object_permission(request, "", self.author_object)
+            self.permission.has_object_permission(request, APIView(), self.author_object)
         )
