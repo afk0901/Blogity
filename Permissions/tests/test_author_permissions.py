@@ -56,7 +56,6 @@ class AuthorPermissionTest(SimpleTestCase):
         request = self.factory.get(self.list_view_url)
         request.user = self.user
         request.data = {}
-        request.data = {}
         self.assertTrue(
             self.permission.has_object_permission(request, APIView(), self.author_object)
         )
