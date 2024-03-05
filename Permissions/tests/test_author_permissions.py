@@ -11,7 +11,6 @@ from rest_framework.request import Request
 
 
 class AuthorPermissionTest(SimpleTestCase):
-
     """
     Unit tests the custom permission classes for the
     author of a blog post or blog comment.
@@ -48,14 +47,14 @@ class AuthorPermissionTest(SimpleTestCase):
         data = {"author_id": self.user.id, "title": "", "content": ""}
 
         request = self.factory.post(self.list_view_url)
-        request.data = data
+        request.data = data  # type: ignore
         request.user = user
         return request
 
     def test_has_object_permission_owner(self) -> None:
         request = self.factory.get(self.list_view_url)
         request.user = self.user
-        request.data = {}
+        request.data = {}  # type: ignore
         self.assertTrue(
             self.permission.has_object_permission(request, APIView(), self.author_object)
         )
@@ -76,7 +75,7 @@ class AuthorPermissionTest(SimpleTestCase):
         request.user = self.user
         # We put in some author data because it should not matter in this case
         # if the consumer sends data with the GET request.
-        request.data = {"author": 18, "post": 4, "content": "Esta bem!"}
+        request.data = {"author": 18, "post": 4, "content": "Esta bem!"} # type: ignore
         self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_other_user(self) -> None:
@@ -84,7 +83,7 @@ class AuthorPermissionTest(SimpleTestCase):
         # is the author
         request = self.factory.get(self.list_view_url)
         request.user = self.other_user
-        request.data = {}
+        request.data = {}  # type: ignore
         self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_user_request_data_but_no_author(self) -> None:
@@ -93,13 +92,13 @@ class AuthorPermissionTest(SimpleTestCase):
         request.user = self.user
         # We put in some author data because it should not matter in this case
         # if the consumer sends data with the GET request.
-        request.data = {}
+        request.data = {}  # type: ignore
         self.assertTrue(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_true_user_details(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.user
-        request.data = {}
+        request.data = {}  # type: ignore
         self.assertTrue(
             self.permission.has_object_permission(request, APIView(), self.author_object)
         )
@@ -107,7 +106,7 @@ class AuthorPermissionTest(SimpleTestCase):
     def test_has_permission_get_true_true_other_user_details(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.other_user
-        request.data = {}
+        request.data = {}  # type: ignore
         self.assertTrue(
             self.permission.has_object_permission(request, APIView(), self.author_object)
         )

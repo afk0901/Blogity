@@ -14,7 +14,7 @@ class UserOnlyModifyOwnAllowReadTest(SimpleTestCase):
         self.permission = UserOnlyModifyOwnAllowRead()
         self.factory = APIRequestFactory()
         self.detail_view_url = "/some-url/1/"
-        self.data = {
+        self.data: dict[str, int | str] = {
             "id": 18,
             "username": "admin",
             "first_name": "admin",

@@ -28,7 +28,7 @@ class RequestDataResponse(TypedDict):
     response: Response
 
 
-class RequestDataResponsesListClient(RequestDataResponse):
+class RequestDataResponsesListClient(TypedDict):
     request_data_responses:  list[RequestDataResponse]
     client: APIClient
 
@@ -81,11 +81,11 @@ class TestBlogPost:
             client: APIClient, user: CustomUser, number_of_posts: int = 1
     ) -> list[RequestDataResponse]:
         # Request data and response array are arranged in the same order as the requests are made.
-        request_data_responses = []
+        request_data_responses: list[RequestDataResponse] = []
 
         for _ in range(0, number_of_posts):
-            request_data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
-            response = client.post("/api/posts/", data=json.dumps(request_data), content_type='application/json')
+            request_data: dict[str, int | str] = model_to_dict(baker.prepare(Post, author_id=user))
+            response: Response = client.post("/api/posts/", data=json.dumps(request_data), content_type='application/json')
             request_data_responses.append({"request_data": request_data, "response": response})
         return request_data_responses
 
@@ -99,7 +99,7 @@ class TestBlogPost:
         user = user_and_client["custom_user_instance"]
         authenticated_client = user_and_client["client"]
 
-        request_data_and_responses = (
+        request_data_and_responses: list[RequestDataResponse] = (
             TestBlogPost.create_test_blog_post_request_data_and_response(
                 authenticated_client, user, number_of_posts
             )
@@ -119,12 +119,12 @@ class TestBlogComment:
 
         user = baker.prepare(CustomUser, id=CustomUser.objects.latest("id").id)
         post_id = post.id
-        request_data_and_responses = []
+        request_data_and_responses: list[RequestDataResponse] = []
 
         for _ in range(number_of_comments):
             comment = model_to_dict(baker.prepare(Comment, post=post, author_id=user))
 
-            request_data_and_response = {
+            request_data_and_response: RequestDataResponse = {
                 "request_data": comment,
                 "response": client.post(
                     f"/api/posts/{post_id}/comments/", data=comment, format="json"
