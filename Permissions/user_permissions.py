@@ -14,4 +14,4 @@ class UserOnlyModifyOwnAllowRead(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj) -> bool:
-        return request.user == obj or request.method == "GET"
+        return bool(request.user == obj or request.method == "GET")
