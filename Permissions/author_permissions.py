@@ -1,11 +1,11 @@
 """
-This module provides custom permissions for the
-users.
+This module provides custom permissions for the users.
+
 What operations they have access to and what they can do.
 """
+
 from rest_framework import permissions
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.request import Request
 
 from Posts.models import Post, Comment
@@ -23,8 +23,8 @@ class IsAuthorAnyRead(permissions.BasePermission):
 
     def has_permission(self, request: Request, view: APIView) -> bool:
         """
-        Preventing the user to create a POST for another author than
-        themselves.
+        Preventing the user to create a POST for another author than themselves.
+
         On list level as this adds to the list if permission is granted.
 
         :param request: The incoming request object
@@ -33,7 +33,6 @@ class IsAuthorAnyRead(permissions.BasePermission):
         granting permission, otherwise False, not granting
         permissions.
         """
-
         if request.method == "POST":
             # Casting to prevent type mismatch.
             return str(request.data.get("author_id")) == str(request.user.id)
@@ -41,8 +40,7 @@ class IsAuthorAnyRead(permissions.BasePermission):
 
     def has_object_permission(self, request: Request, view: APIView, obj: Post | Comment) -> bool:
         """
-        Preventing a user that is not the author of an object,
-        to modify the object.
+        Preventing a user that is not the author of an object, to modify the object.
 
         GET requests will always pass the check as anybody can read
         the object.
@@ -56,7 +54,6 @@ class IsAuthorAnyRead(permissions.BasePermission):
         id of author attribute and therefore make post as
         another user.
         """
-
         if request.method == "GET":
             return True
         else:
