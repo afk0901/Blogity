@@ -125,6 +125,8 @@ class TestUser:
         :return: A match object if the password is hashed; None otherwise.
         """
         user = CustomUser.objects.get(username=username)
+        # Starts with the hash prefix, then iterations (some numbers)
+        # and then the hash itself that can be anything
         hash_regex = r"^pbkdf2_sha256\$\d+.*"
         return re.match(hash_regex, user.password)
 
@@ -138,6 +140,11 @@ class TestUser:
 )
 class CreatedUserSuccessfullyTestCases(TestCase):
     """Tests the creation of a user through a post-request and verifies successful creation and data accuracy."""
+
+    # For type checkers and for clarity.
+    authenticate: bool
+    response: Response
+    request_data: dict[str, str | int]
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -188,6 +195,9 @@ class AuthenticateUserTestCases(TestCase):
 class GetIndividualUser(TestCase):
     """Tests the retrieval of individual user data, ensuring correct status code and data integrity."""
 
+    authenticate: bool
+    resp: Response
+
     @classmethod
     def setUpTestData(cls) -> None:
         """Set up test data by creating a test user and making a GET request for that user's data."""
@@ -212,6 +222,11 @@ class GetIndividualUser(TestCase):
 
 class UpdateIndividualUser(TestCase):
     """Tests the update functionality for individual user's data, ensuring data integrity and authorization checks."""
+
+    user_id: int
+    new_user: dict[str, int | str]
+    updated_user_response: Response
+    old_user: Response
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -272,6 +287,9 @@ class UpdateIndividualUser(TestCase):
 
 class UserCantDelete(TestCase):
     """Ensures users cannot delete their own or other users' data, enforcing method restrictions and authorization."""
+
+    current_user_id: int
+    resp: Response
 
     @classmethod
     def setUpTestData(cls) -> None:
