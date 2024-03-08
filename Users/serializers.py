@@ -18,22 +18,14 @@ class UserSerializer(serializers.ModelSerializer):
     """
     A serializer for the CustomUser model.
 
-    This serializer handles the serialization and deserialization of CustomUser instances,
-    ensuring secure password handling by hashing passwords upon creation and update.
+    Ensuring secure password handling by hashing passwords upon creation and update.
     """
 
     # Using CharField with write_only=True for password handling to ensure it's never sent back to the client.
     password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
-        """
-        Metaclass configuration for UserSerializer with password.
-
-        Specifies the model it is associated with and the fields that should be
-        included in the serialized representation.
-        The inclusion of the password field with write_only=True ensures it is used
-        for creating or updating instances but not returned in the serialized data.
-        """
+        """Defines fields for the CustomUser model."""
 
         model = CustomUser
         fields = ["id", "username", "first_name", "last_name", "password"]

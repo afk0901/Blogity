@@ -1,3 +1,5 @@
+"""This module handles posts URLS configuration."""
+
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
