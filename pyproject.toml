@@ -1,8 +1,13 @@
 [tool.pydocstyle]
-match-dir = "^(?!venv).*$"
+match-dir = "^(?!venv|.*migrations).*$"
+add-ignore = "D104"
+ignore-self-only-init = true
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+files = "."
+ignore_missing_imports = true
+exclude = "^venv/"
 
 [tool.django-stubs]
 django_settings_module = "Bloggity.settings.local"
