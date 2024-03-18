@@ -3,3 +3,4 @@ isort==5.13.2
 model-bakery==1.17.0
 mypy-extensions==1.0.0
 pydocstyle==6.3.0
+pre-commit==3.6.2
