@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase
 
@@ -17,7 +17,9 @@ class PostSerializerTest(SimpleTestCase):
         self.mock_request.query_params = {}
         self.assertEqual(self.viewset.get_serializer_class(), PostSerializer)
 
-    def test_get_serializer_class_return_post_with_comments_serializer(self) -> None:
+    def test_get_serializer_class_return_post_with_comments_serializer(
+        self,
+    ) -> None:
         # Assert the correct serializer class is returned
         self.mock_request.query_params = {"include_comments": "true"}
         self.assertEqual(
@@ -33,7 +35,7 @@ class PostQuerySetTest(SimpleTestCase):
 
     @patch("Posts.models.Post.post_manager.get_all_posts_and_related_comments")
     def test_get_queryset_return_related_comments(
-            self, mock_get_all_posts_and_related_comments: MagicMock
+        self, mock_get_all_posts_and_related_comments: MagicMock
     ) -> None:
         self.mock_request.query_params = {"include_comments": "true"}
         self.viewset.get_queryset()
