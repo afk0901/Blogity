@@ -23,7 +23,7 @@ jobs:
           POSTGRES_PASSWORD: "pass"
           POSTGRES_DB: "dbname"
         ports:
-          - 5432:5432
+          - localhost:5432
         # This ensures the service container is ready before moving on.
         options: >-
             --health-cmd pg_isready
@@ -48,7 +48,7 @@ jobs:
         DB_NAME: "dbname"
         DB_USER: "postgres"
         DB_PASS: "pass"
-        DB_HOST: "5432"
+        DB_HOST: "localhost"
         DB_PORT: 5432
       run: |
         python manage.py test
