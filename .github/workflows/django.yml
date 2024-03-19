@@ -42,5 +42,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
     - name: Run Tests
+      env:
+        DJANGO_SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
+        DB_NAME: ${{ env.DB_NAME }}
+        DB_USER: ${{ env.DB_USER }}
+        DB_PASS: ${{ env.DB_PASS }}
+        DB_HOST: ${{ env.DB_HOST }}
+        DB_PORT: ${{ env.DB_PORT }}
       run: |
         python manage.py test
