@@ -19,7 +19,7 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: "user"
+          POSTGRES_USER: "postgres"
           POSTGRES_PASSWORD: "pass"
           POSTGRES_DB: "dbname"
         ports:
@@ -43,11 +43,20 @@ jobs:
         pip install -r requirements-ci.txt
     - name: Run Tests
       env:
+
         DJANGO_SECRET_KEY: "django-insecure-kih$vse%bf+e9%4=ii7yye+s120^r8ug!5$4@k@3hnfsk+@i%r"
         DB_NAME: "dbname"
-        DB_USER: "user"
+        DB_USER: "postgres"
         DB_PASS: "pass"
         DB_HOST: "postgres"
         DB_PORT: "5432"
       run: |
         python manage.py test
+
+    - name: Print environment variables
+      run: |
+        echo DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+        echo DB_NAME=${DB_NAME}
+        echo DB_USER=${DB_USER}
+        echo DB_HOST=${DB_HOST}
+        echo DB_PORT=${DB_PORT}
