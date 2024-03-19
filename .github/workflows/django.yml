@@ -26,7 +26,7 @@ jobs:
       postgres:
         image: postgres:latest
         ports:
-          - ${{ POSTGRES_HOST }}:${{ POSTGRES_PORT }}
+          - 5432:5432
         # This ensures the service container is ready before moving on.
         options: >-
             --health-cmd pg_isready
