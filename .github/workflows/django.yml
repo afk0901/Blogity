@@ -51,11 +51,4 @@ jobs:
         DB_HOST: "5432"
         DB_PORT: "5432"
       run: |
-        echo DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-        echo DB_NAME=${DB_NAME}
-        echo DB_USER=${DB_USER}
-        echo DB_HOST=${DB_HOST}
-        echo DB_PORT=${DB_PORT}
-        
         python manage.py test
-
