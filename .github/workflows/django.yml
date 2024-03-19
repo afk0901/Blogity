@@ -23,7 +23,7 @@ jobs:
           POSTGRES_PASSWORD: "pass"
           POSTGRES_DB: "dbname"
         ports:
-          - localhost:5432
+          - 5432:5432
         # This ensures the service container is ready before moving on.
         options: >-
             --health-cmd pg_isready
