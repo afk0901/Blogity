@@ -23,7 +23,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: testdb
         ports:
-          - localhost:5432
+          - 5432:5432
 
     steps:
     - uses: actions/checkout@v3
