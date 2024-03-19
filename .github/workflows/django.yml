@@ -19,9 +19,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASS }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: "user"
+          POSTGRES_PASSWORD: "pass"
+          POSTGRES_DB: "dbname"
         ports:
           - 5432:5432
         # This ensures the service container is ready before moving on.
