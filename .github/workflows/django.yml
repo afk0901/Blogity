@@ -44,7 +44,7 @@ jobs:
 
     - name: Run Ruff formatter
       run: |
-        ruff format -v
+        ruff format .
 
     - name: Run Tests
       env:
