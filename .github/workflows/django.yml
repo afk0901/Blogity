@@ -44,7 +44,7 @@ jobs:
 
     - name: Run Ruff formatter
       run: |
-        ruff format
+        ruff format -v
 
     - name: Run Tests
       env:
@@ -55,5 +55,5 @@ jobs:
         DB_HOST: "localhost"
         DB_PORT: 5432
       run: |
-        python manage.py test
+        python manage.py test -v
 
