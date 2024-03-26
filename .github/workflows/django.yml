@@ -55,5 +55,5 @@ jobs:
         DB_HOST: "localhost"
         DB_PORT: 5432
       run: |
-        python manage.py test -v
+        python manage.py test -v 3
 
