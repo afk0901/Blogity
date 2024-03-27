@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "django_filters",
 ]
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
