@@ -33,10 +33,9 @@ INSTALLED_APPS = [
     "Posts",
     "rest_framework",
     "django_filters",
-    "debug_toolbar",
 ]
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -45,10 +44,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": config("DB_NAME"),
-        "USER": config("USER"),
+        "USER": config("DB_USER"),
         "PASSWORD": config("DB_PASS"),
-        "HOST": config("HOST"),
-        "PORT": config("PORT"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
     }
 }
 
@@ -60,7 +59,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "Bloggity.urls"

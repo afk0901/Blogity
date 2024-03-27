@@ -24,9 +24,3 @@ urlpatterns = [
     path("api/users/", include("Users.urls")),
     path("api/token/", include("Authentication.urls")),
 ]
-
-# DEVELOPING URLS - ONLY FOR DEVELOPMENT
-if config("DEBUG", cast=bool):
-    urlpatterns += [
-        path("__debug__/", include("debug_toolbar.urls")),
-    ]
