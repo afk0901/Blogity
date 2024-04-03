@@ -1,0 +1,3 @@
+-r requirements.txt
+model-bakery==1.17.0
+mypy-extensions==1.0.0

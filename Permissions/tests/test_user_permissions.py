@@ -3,10 +3,10 @@ from unittest.mock import Mock
 from django.contrib.auth.models import AnonymousUser
 from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 
 from Permissions.user_permissions import UserOnlyModifyOwnAllowRead
 from Users.models import CustomUser
-from rest_framework.views import APIView
 
 
 class UserOnlyModifyOwnAllowReadTest(SimpleTestCase):
@@ -44,14 +44,18 @@ class UserOnlyModifyOwnAllowReadTest(SimpleTestCase):
         request.user = user
         self.assertTrue(self.permission.has_object_permission(request, self.view, user))
 
-    def test_user_has_object_permission_anonymous_user_granted_to_read(self) -> None:
+    def test_user_has_object_permission_anonymous_user_granted_to_read(
+        self,
+    ) -> None:
         request = self.factory.get(self.detail_view_url, self.data)
         request.user = AnonymousUser()
         self.assertTrue(
             self.permission.has_object_permission(request, self.view, CustomUser())
         )
 
-    def test_user_has_object_permission_authenticated_user_granted_to_read(self) -> None:
+    def test_user_has_object_permission_authenticated_user_granted_to_read(
+        self,
+    ) -> None:
         request = self.factory.get(self.detail_view_url, self.data)
         request.user = CustomUser()
         self.assertTrue(

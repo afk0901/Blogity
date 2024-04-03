@@ -1,5 +1,4 @@
-"""
-ASGI config for Bloggity project.
+"""ASGI config for Bloggity project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
