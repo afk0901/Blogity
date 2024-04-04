@@ -25,17 +25,32 @@ from Posts.serializers import (
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    """Viewset for viewing and editing post instances.
+    """Endpoint for viewing and editing posts.
 
-    Supports filtering by title, and dynamically returns
-    either basic post-information or posts with their related
-    comments based on the 'include_comments' query parameter.
+    Supports filtering by title, and optionally returns related comments for each post.
 
-    Attributes:
-        filter_backends (tuple): DjangoFilterBackend for filtering resources.
-        filterset_fields (tuple): Field names allowed for filtering.
-        http_method_names (list): Allowed HTTP methods.
-        permission_classes (list): Custom permission classes applied to the viewset.
+    Supported methods: GET, POST, PUT, DELETE
+
+    Get Operations:
+    - /: Returns a list of all posts in the system.
+    - /<id>: Returns a specific post by id
+
+    Post Operations:
+    - /: Adds a new post to the system
+
+    Put Operations:
+    - /<id>: Updates a specific post
+
+    Delete Operations:
+    - /<id>: Deletes a specific post
+
+    Note: Pagination will be implemented in a future update.
+
+    Query Parameters:
+    - `title` (optional): Filters posts by title. Usage: `/?title=<title of post>`
+    - `include_comments` (optional): Includes comments related to each post in the
+       response when set to True.
+       Usage: `/?include_comments=True`
     """
 
     filter_backends = (DjangoFilterBackend,)
@@ -74,13 +89,26 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """A viewset for viewing and editing comment instances, filtered by their
-    associated post-ID.
+    """Endpoint for viewing and editing comments.
 
-    Attributes:
-        serializer_class (Type[CommentSerializer]): The serializer class for comments.
-        http_method_names (list): Allowed HTTP methods.
-        permission_classes (list): Custom permission classes applied to the viewset.
+    Supported methods: GET, POST, PUT, DELETE
+
+    Get Operations:
+    - /<post_id>/comments/: Returns a list of all comments for a specific post.
+    - /<post_id>/comments/<id>/: Returns a specific comment by id for a specific post
+
+    Post Operations:
+    - /: Adds a new comment to the system
+
+    Put Operations:
+    - /<post_id><comment_id>/: Updates a specific comment for a specific post
+
+    Delete Operations:
+    - /<post_id>/<comment_id>/: Deletes a specific comment for a specific post
+
+    Note: Pagination will be implemented in a future update.
+
+    Query Parameters: None.
     """
 
     serializer_class = CommentSerializer

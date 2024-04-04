@@ -9,8 +9,27 @@ from Users.serializers import UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """General user viewset, enables creation, update and read for the
-    CustomUser model and represents it on read."""
+    """Endpoint for viewing and editing users.
+
+    Supported methods: GET, POST, PUT
+
+    Get Operations:
+    - /: Returns a list of all users in the system.
+    - /<id>: Returns a specific user by id
+
+    Post Operations:
+    - /: Adds a new user to the system
+
+    Put Operations:
+    - /<id>: Updates a specific user
+
+    Delete Operations:
+    - /<id>: Deletes a specific user
+
+    Note: Pagination will be implemented in a future update.
+
+    Query Parameters: None.
+    """
 
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
