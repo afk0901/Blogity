@@ -4,3 +4,32 @@ repos:
     hooks:
     -   id: check-yaml
 
+-   repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.2.0
+    hooks:
+    -  id: black
+
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+-   repo: https://github.com/myint/docformatter
+    rev: v1.4
+    hooks:
+      - id: docformatter
+        args: ["--in-place", "--recursive", "--exclude=venv/"]
+
+# Local environment as mypy needs all the dependencies in the project.
+-   repo: local
+    hooks:
+    -   id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
+
+-   repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8

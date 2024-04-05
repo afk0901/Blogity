@@ -1,19 +1,18 @@
 import json
 from http import HTTPStatus
+from typing import TypedDict
 
 from django.forms import model_to_dict
 from django.test import TestCase
 from model_bakery import baker
 from parameterized import parameterized_class
+from rest_framework.response import Response
 from rest_framework.test import APIClient
 
 from Authentication.client import Client
 from Posts.models import Comment, Post
 from Users.models import CustomUser
 from Users.tests import TestUser
-from rest_framework.response import Response
-
-from typing import TypedDict
 
 """
 This test suite tests the PostViewSet.
@@ -29,7 +28,7 @@ class RequestDataResponse(TypedDict):
 
 
 class RequestDataResponsesListClient(TypedDict):
-    request_data_responses:  list[RequestDataResponse]
+    request_data_responses: list[RequestDataResponse]
     client: APIClient
 
 
@@ -43,10 +42,9 @@ class BlogPostData(TypedDict):
 class TestBlogPost:
     @staticmethod
     def setup_user_posts_and_client(
-            authenticate_client: bool, number_of_posts: int = 1
+        authenticate_client: bool, number_of_posts: int = 1
     ) -> APIClient:
-        """
-        Will always create a blog post with authenticated user.
+        """Will always create a blog post with authenticated user.
 
         :param authenticate_client: If we should return an authenticated client or not.
         :param number_of_posts: Number of posts to be generated with a POST request.
@@ -60,10 +58,11 @@ class TestBlogPost:
 
     @staticmethod
     def setup_user_posts_get_authenticated_client_and_post_id(
-            authenticate_client: bool, number_of_posts: int = 1
+        authenticate_client: bool, number_of_posts: int = 1
     ) -> tuple[APIClient, Post, APIClient]:
-        """
-        Sets up blog post and the authenticated client if we want the client to be authenticated.
+        """Sets up blog post and the authenticated client if we want the client
+        to be authenticated.
+
         :param number_of_posts: Number of blog posts.
         :param authenticate_client: Should it return an authenticated client or not?
         :return: Tuple of a client and post
@@ -78,22 +77,34 @@ class TestBlogPost:
 
     @staticmethod
     def create_test_blog_post_request_data_and_response(
-            client: APIClient, user: CustomUser, number_of_posts: int = 1
+        client: APIClient, user: CustomUser, number_of_posts: int = 1
     ) -> list[RequestDataResponse]:
-        # Request data and response array are arranged in the same order as the requests are made.
+        # Request data and response array are arranged in the same order
+        # as the requests are made.
         request_data_responses: list[RequestDataResponse] = []
 
         for _ in range(0, number_of_posts):
-            request_data: dict[str, int | str] = model_to_dict(baker.prepare(Post, author_id=user))
-            response: Response = client.post("/api/posts/", data=json.dumps(request_data), content_type='application/json')
-            request_data_responses.append({"request_data": request_data, "response": response})
+            request_data: dict[str, int | str] = model_to_dict(
+                baker.prepare(Post, author_id=user)
+            )
+            response: Response = client.post(
+                "/api/posts/",
+                data=json.dumps(request_data),
+                content_type="application/json",
+            )
+            request_data_responses.append(
+                {"request_data": request_data, "response": response}
+            )
         return request_data_responses
 
     @staticmethod
-    def create_test_user_and_create_blog_post(number_of_posts: int = 1) -> RequestDataResponsesListClient:
-        """
-        Creates a new user, authenticates the user and creates a blog post.
-        :return: Dict of request data and response post created by an authenticated user - {'request_data', 'response'}
+    def create_test_user_and_create_blog_post(
+        number_of_posts: int = 1,
+    ) -> RequestDataResponsesListClient:
+        """Creates a new user, authenticates the user and creates a blog post.
+
+        :return: Dict of request data and response post created by an
+                 authenticated user.
         """
         user_and_client = TestUser.create_test_user()
         user = user_and_client["custom_user_instance"]
@@ -114,9 +125,8 @@ class TestBlogPost:
 class TestBlogComment:
     @staticmethod
     def create_comment_post_response(
-            client: APIClient, post: Post, number_of_comments: int = 1
+        client: APIClient, post: Post, number_of_comments: int = 1
     ) -> list[RequestDataResponse]:
-
         user = baker.prepare(CustomUser, id=CustomUser.objects.latest("id").id)
         post_id = post.id
         request_data_and_responses: list[RequestDataResponse] = []
@@ -127,7 +137,9 @@ class TestBlogComment:
             request_data_and_response: RequestDataResponse = {
                 "request_data": comment,
                 "response": client.post(
-                    f"/api/posts/{post_id}/comments/", data=comment, format="json"
+                    f"/api/posts/{post_id}/comments/",
+                    data=comment,
+                    format="json",
                 ),
             }
             request_data_and_responses.append(request_data_and_response)
@@ -135,10 +147,9 @@ class TestBlogComment:
         return request_data_and_responses
 
     @staticmethod
-    def setup_user_posts_get_authenticated_user_create_comment_client_post(
-            authenticate: bool, number_of_comments: int = 1
+    def setup_user_posts_get_authenticated_user_create_comment(
+        authenticate: bool, number_of_comments: int = 1
     ) -> tuple[APIClient, Post]:
-
         client_and_post_id = (
             TestBlogPost.setup_user_posts_get_authenticated_client_and_post_id(
                 authenticate
@@ -271,7 +282,9 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
         user = baker.prepare(CustomUser, id=1)
         data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
         resp = APIClient().post(
-            f"/api/posts/", data=json.dumps(data), content_type="application/json"
+            "/api/posts/",
+            data=json.dumps(data),
+            content_type="application/json",
         )
         self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
 
@@ -293,7 +306,7 @@ class CreateUserAndGetAllPostsTest(TestCase):
         client = TestBlogPost.setup_user_posts_and_client(
             cls.authenticate, number_of_posts=3
         )
-        cls.response = client.get(f"/api/posts/")
+        cls.response = client.get("/api/posts/")
 
     def test_post_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
@@ -323,7 +336,7 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
         (
             client,
             post,
-        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment(
             authenticate=cls.authenticate, number_of_comments=3
         )
         cls.response = client.get(f"/api/posts/{post.id}/comments/")
@@ -389,7 +402,6 @@ class CreateUserCreatePostCreateComments(TestCase):
     ],
 )
 class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
-
     authenticate: bool
     response: Response
 
@@ -398,7 +410,7 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
         (
             client,
             post,
-        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment(
             cls.authenticate
         )
         comment_id = Comment.objects.filter(post=post)[0].id
@@ -424,7 +436,6 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
     authenticate: bool
     response: Response
 
-
     @classmethod
     def setUpTestData(cls) -> None:
         client_and_post_id = (
@@ -438,9 +449,11 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
             TestBlogComment.create_comment_post_response(
                 authenticated_client, post, number_of_comments=1
             )
-        cls.response = client.get(f"/api/posts/?include_comments=true")
+        cls.response = client.get("/api/posts/?include_comments=true")
 
-    def test_all_posts_and_comments_fetched_successfully_status_code(self) -> None:
+    def test_all_posts_and_comments_fetched_successfully_status_code(
+        self,
+    ) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
     def test_all_posts_and_comments_fetched_successfully(self) -> None:
@@ -458,7 +471,6 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
 
 
 class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
-
     old_comment: Response
     updated_comment_response: Response
     new_comment: dict[str, int | str]
@@ -469,7 +481,7 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
         (
             client,
             post,
-        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment(
             authenticate=True
         )
         comment_id = Comment.objects.latest("id").id
@@ -494,10 +506,12 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
             self.old_comment.data["content"],
         )
         self.assertEqual(
-            self.updated_comment_response.data["post"], self.old_comment.data["post"]
+            self.updated_comment_response.data["post"],
+            self.old_comment.data["post"],
         )
         self.assertEqual(
-            self.updated_comment_response.data["content"], self.new_comment["content"]
+            self.updated_comment_response.data["content"],
+            self.new_comment["content"],
         )
 
     def test_only_owner_can_update(self) -> None:
@@ -513,13 +527,14 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
         user = baker.prepare(CustomUser, id=1)
         data = model_to_dict(baker.prepare(Comment, id=1, author_id=user))
         resp = APIClient().put(
-            self.update_url, data=json.dumps(data), content_type="application/json"
+            self.update_url,
+            data=json.dumps(data),
+            content_type="application/json",
         )
         self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
 
 
 class CreateUserCreatePostDeletePost(TestCase):
-
     post_id: int
     resp: Response
 
@@ -547,7 +562,6 @@ class CreateUserCreatePostDeletePost(TestCase):
 
 
 class CreateUserCreatePostDeleteIndividualComment(TestCase):
-
     # For type checkers and for clarity.
 
     resp: Response
@@ -559,7 +573,7 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
         (
             client,
             post,
-        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment_client_post(
+        ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment(
             authenticate=True, number_of_comments=3
         )
         cls.last_comment_id = Comment.objects.latest("id").id

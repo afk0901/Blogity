@@ -1,6 +1,9 @@
-black==23.10.1
-isort==5.13.2
 model-bakery==1.17.0
+django-stubs
+mypy==1.7.1
 mypy-extensions==1.0.0
-pydocstyle==6.3.0
 pre-commit==3.6.2
+black==24.2.0
+djangorestframework-stubs==3.14.5
+flake8==7.0.0
+isort==5.13.2

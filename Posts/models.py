@@ -1,24 +1,27 @@
-"""
-Defines the models for blog posts and associated comments.
+"""Defines the models for blog posts and associated comments.
 
-A custom manager for the `Post` model is also provided to optimize queries for retrieving posts with their comments
-and to avoid violating the DRY principle.
+A custom manager for the `Post` model is also provided to optimize
+queries for retrieving posts with their comments and to avoid violating
+the DRY principle.
 """
 
 from django.db import models
-from Users.models import CustomUser
 from django.db.models.query import QuerySet
+
+from Users.models import CustomUser
 
 
 class PostManager(models.Manager):
-    """A custom manager for the Post model, adds methods to efficiently query all posts and their related comments."""
+    """A custom manager for the Post model, adds methods to efficiently query
+    all posts and their related comments."""
 
     def get_all_posts_and_related_comments(self) -> QuerySet:
-        """
-        Retrieve all Post instances from the database, prefetching related comments to minimize database queries.
+        """Retrieve all Post instances from the database, prefetching related
+        comments to minimize database queries.
 
         Returns:
-            QuerySet: A QuerySet of all Post instances with their related comments prefetched.
+            QuerySet: A QuerySet of all Post instances with their related
+            comments prefetched.
         """
         return self.all().prefetch_related("comments")
 
@@ -33,11 +36,14 @@ class Post(models.Model):
     content = models.TextField()
     publish_date = models.DateTimeField(auto_now=True)
 
-    objects = models.Manager()  # In the case, we may not want to use the custom manager.
+    objects = (
+        models.Manager()
+    )  # In the case, we may not want to use the custom manager.
     post_manager = PostManager()
 
     def __str__(self) -> str:
-        """Return a string representation of the Post instance, including its title and publish date."""
+        """Return a string representation of the Post instance, including its
+        title and publish date."""
         return f"{self.title} published on {self.publish_date}"
 
 
@@ -52,5 +58,6 @@ class Comment(models.Model):
     publish_date = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        """Return a string representation of the Comment instance, including its publishing date."""
+        """Return a string representation of the Comment instance, including
+        its publishing date."""
         return f"Comment published on {self.publish_date}"
