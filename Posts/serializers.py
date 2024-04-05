@@ -1,5 +1,4 @@
-"""
-This module defines serializers for the `Post` and `Comment` models.
+"""This module defines serializers for the `Post` and `Comment` models.
 
 It includes serializers for individual `Post` and `Comment` instances,
 as well as a serializer that combines posts with their associated
@@ -32,7 +31,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostWithCommentsSerializer(serializers.ModelSerializer):
-    """Composite serializer for Post model instances that include related comments."""
+    """Composite serializer for Post model instances that include related
+    comments."""
 
     comments = CommentSerializer(many=True, read_only=True)
 
@@ -40,4 +40,11 @@ class PostWithCommentsSerializer(serializers.ModelSerializer):
         """Defines fields for the Post model with comments."""
 
         model = Post
-        fields = ["id", "title", "content", "author_id", "publish_date", "comments"]
+        fields = [
+            "id",
+            "title",
+            "content",
+            "author_id",
+            "publish_date",
+            "comments",
+        ]

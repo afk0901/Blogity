@@ -1,5 +1,4 @@
-"""
-WSGI config for Bloggity project.
+"""WSGI config for Bloggity project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
