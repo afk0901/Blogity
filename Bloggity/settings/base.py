@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "Posts",
     "rest_framework",
     "django_filters",
+    "drf_spectacular",
 ]
 
 SECRET_KEY = config("DJANGO_SECRET_KEY")
@@ -137,4 +138,5 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
