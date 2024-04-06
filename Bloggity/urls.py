@@ -16,9 +16,20 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework.routers import DefaultRouter
+
+from Posts.views import PostViewSet
+from Users.views import UserViewSet
+
+router = DefaultRouter()
+router.register("posts", PostViewSet, basename="posts")
+router.register("users", UserViewSet, basename="users")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/posts/", include("Posts.urls")),
     path("api/users/", include("Users.urls")),
     path("api/token/", include("Authentication.urls")),
