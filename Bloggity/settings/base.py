@@ -140,3 +140,30 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "REST API for posts and comments",
+    "DESCRIPTION": """
+    This API provides a comprehensive platform for managing user-generated content.
+    Tailored for applications that involve creation, update,
+    and deletion of posts and comments.
+
+    Note: Everybody can see the posts and comments without any authentication.
+    So feel free to execute a GET request on the endpoints below.
+
+    To perform actions such as creation, update, and deletion,
+    please follow these steps:
+
+    1. User Registration: Create a user by sending a POST request to the
+                          api/users endpoint.
+
+    2. Authentication: Obtain your JWT authentication token by submitting your
+                        username and password in a POST request to api/token/.
+
+    3. Explore Endpoints: With your token, you can now use the PUT, POST,
+                          and DELETE methods on the endpoints below to manage content.
+
+    For more detailed guides and comprehensive information,
+    please refer to our documentation on GitHub!
+    """,
+}

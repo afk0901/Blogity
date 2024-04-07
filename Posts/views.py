@@ -13,6 +13,7 @@ from typing import Type
 
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 
 from Permissions.author_permissions import IsAuthorAnyRead
@@ -24,34 +25,16 @@ from Posts.serializers import (
 )
 
 
+@extend_schema(
+    methods=["GET"], description="Retrieve a list of posts or a specific post by ID"
+)
+@extend_schema(
+    methods=["POST"], description="Create a specific post and add the post to the list"
+)
+@extend_schema(methods=["DELETE"], description="Delete a specific post")
+@extend_schema(methods=["PUT"], description="Update a specific post")
 class PostViewSet(viewsets.ModelViewSet):
-    """Endpoint for viewing and editing posts.
-
-    Supports filtering by title, and optionally returns related comments for each post.
-
-    Supported methods: GET, POST, PUT, DELETE
-
-    Get Operations:
-    - /: Returns a list of all posts in the system.
-    - /<id>: Returns a specific post by id
-
-    Post Operations:
-    - /: Adds a new post to the system
-
-    Put Operations:
-    - /<id>: Updates a specific post
-
-    Delete Operations:
-    - /<id>: Deletes a specific post
-
-    Note: Pagination will be implemented in a future update.
-
-    Query Parameters:
-    - `title` (optional): Filters posts by title. Usage: `/?title=<title of post>`
-    - `include_comments` (optional): Includes comments related to each post in the
-       response when set to True.
-       Usage: `/?include_comments=True`
-    """
+    """Endpoint for viewing and editing posts."""
 
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("title",)
@@ -88,28 +71,25 @@ class PostViewSet(viewsets.ModelViewSet):
         return Post.objects.all()
 
 
+@extend_schema(
+    methods=["GET"],
+    description="Retrieve a list of comments by post ID (post_pk) "
+    "or a specific comment by a post ID and then a comment ID",
+)
+@extend_schema(
+    methods=["POST"],
+    description="Create a specific comment for a specific post (post_pk)",
+)
+@extend_schema(
+    methods=["DELETE"],
+    description="Delete a specific comment for a specific post (post_pk)",
+)
+@extend_schema(
+    methods=["PUT"],
+    description="Update a specific comment for a specific post (post_pk)",
+)
 class CommentViewSet(viewsets.ModelViewSet):
-    """Endpoint for viewing and editing comments.
-
-    Supported methods: GET, POST, PUT, DELETE
-
-    Get Operations:
-    - /<post_id>/comments/: Returns a list of all comments for a specific post.
-    - /<post_id>/comments/<id>/: Returns a specific comment by id for a specific post
-
-    Post Operations:
-    - /: Adds a new comment to the system
-
-    Put Operations:
-    - /<post_id><comment_id>/: Updates a specific comment for a specific post
-
-    Delete Operations:
-    - /<post_id>/<comment_id>/: Deletes a specific comment for a specific post
-
-    Note: Pagination will be implemented in a future update.
-
-    Query Parameters: None.
-    """
+    """Endpoint for viewing and editing comments."""
 
     serializer_class = CommentSerializer
     http_method_names = ["get", "post", "put", "delete"]

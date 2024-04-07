@@ -1,6 +1,7 @@
 """This module contains view-sets for CRUD operations for the User of the
 posts, comments etc."""
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 
 from Permissions.user_permissions import UserOnlyModifyOwnAllowRead
@@ -8,28 +9,15 @@ from Users.models import CustomUser
 from Users.serializers import UserSerializer
 
 
+@extend_schema(
+    methods=["GET"], description="Retrieve a list of users or a specific user by ID"
+)
+@extend_schema(
+    methods=["POST"], description="Create a specific user and add the user to the list"
+)
+@extend_schema(methods=["PUT"], description="Update a specific user")
 class UserViewSet(viewsets.ModelViewSet):
-    """Endpoint for viewing and editing users.
-
-    Supported methods: GET, POST, PUT
-
-    Get Operations:
-    - /: Returns a list of all users in the system.
-    - /<id>: Returns a specific user by id
-
-    Post Operations:
-    - /: Adds a new user to the system
-
-    Put Operations:
-    - /<id>: Updates a specific user
-
-    Delete Operations:
-    - /<id>: Deletes a specific user
-
-    Note: Pagination will be implemented in a future update.
-
-    Query Parameters: None.
-    """
+    """Endpoint for viewing and editing users."""
 
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
