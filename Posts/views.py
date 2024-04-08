@@ -13,7 +13,8 @@ from typing import Type
 
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets
 
 from Permissions.author_permissions import IsAuthorAnyRead
@@ -33,6 +34,18 @@ from Posts.serializers import (
 )
 @extend_schema(methods=["DELETE"], description="Delete a specific post")
 @extend_schema(methods=["PUT"], description="Update a specific post")
+@extend_schema(
+    methods=["GET"],
+    parameters=[
+        OpenApiParameter(
+            name="include_comments",
+            type=OpenApiTypes.BOOL,
+            description="Include comments for each post if set to true. "
+            "Only available at api/posts/ endpoint.",
+            required=False,
+        )
+    ],
+)
 class PostViewSet(viewsets.ModelViewSet):
     """Endpoint for viewing and editing posts."""
 
