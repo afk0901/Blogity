@@ -84,5 +84,13 @@ comment sections, and social apps.
     Run the following command to run the development server:
     ```python manage.py runserver```
 
+8. **Access the API**
+   
+   The API can be accessed at ```/api/``` (place it after the base URL), which will direct you to the Swagger (drf-spectacular) UI page.
+
+## Documentation
+Swagger UI provides detailed documentation for all API endpoints, including descriptions, parameter requirements, and example responses. 
+This feature simplifies the process of integrating and testing the API.
+
 
   
