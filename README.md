@@ -123,7 +123,7 @@ Contributors are always welcome! If you wish to contribute:
 If you have any feature requests in mind that could enhance the API please make an issue here in the repository and use the feature request template.
 
 ## Bug Reports ##
-If you encounter any bugs please make an bug report in the issues here in this repository and use the feature bug report template.
+If you encounter any bugs please make an bug report in the issues here in this repository and use the bug report template.
 
 ## Contact ##
 For further support regarding to this project or collaboration, don't hesitate to send me an <a href="mailto:arnarfkr@gmail.com">email</a> and I will try to help you.
