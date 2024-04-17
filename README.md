@@ -2,7 +2,8 @@
 
 This API provides a comprehensive platform for managing user-generated content, 
 tailored specifically for applications that involve creation, update, and deletion 
-of posts and comments. 
+of posts and comments initally inteded for a blog site, but after a realization, it's actually multipurpose.
+
 This platform is designed to facilitate community interactions without the need 
 for authentication to view content, making it perfect for open forums, 
 comment sections, and social apps.
@@ -119,10 +120,10 @@ Contributors are always welcome! If you wish to contribute:
 
 
 ## Feature requests ##
-If you have any feature requests in mind that could enhance the API please make an issue here in the repository.
+If you have any feature requests in mind that could enhance the API please make an issue here in the repository and use the feature request template.
 
 ## Bug Reports ##
-If you encounter any bugs please make an bug report in the issues here in this repository.
+If you encounter any bugs please make an bug report in the issues here in this repository and use the feature bug report template.
 
 ## Contact ##
 For further support regarding to this project or collaboration, don't hesitate to send me an <a href="mailto:arnarfkr@gmail.com">email</a> and I will try to help you.
