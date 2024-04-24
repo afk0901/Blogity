@@ -54,7 +54,7 @@ jobs:
 
       - name: mypy
         env:
-          PATH_TO_DJANGO_SETTINGS: "Bloggity.settings.local"
+          PATH_TO_DJANGO_SETTINGS: "Bloggity.settings"
           STATIC_URL: "static/"
           DEBUG: True
           ALLOWED_HOSTS: "localhost,127.0.0.1"

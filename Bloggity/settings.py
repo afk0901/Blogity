@@ -14,8 +14,12 @@ from pathlib import Path
 
 from decouple import config
 
+from utils.secrets_utils import access_secret
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+version = "1"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", cast=bool)
@@ -36,7 +40,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
 ]
 
-SECRET_KEY = config("DJANGO_SECRET_KEY")
+
+SECRET_KEY = access_secret("blogity", "DJANGO_SECRET_KEY", version)
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

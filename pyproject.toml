@@ -5,7 +5,7 @@ ignore_missing_imports = true
 exclude = "^venv/"
 
 [tool.django-stubs]
-django_settings_module = "Bloggity.settings.local"
+django_settings_module = "Bloggity.settings"
 
 [tool.black]
 target-version = ['py311']
