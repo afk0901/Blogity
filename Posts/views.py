@@ -13,6 +13,8 @@ from typing import Type
 
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets
 
 from Permissions.author_permissions import IsAuthorAnyRead
@@ -24,19 +26,28 @@ from Posts.serializers import (
 )
 
 
+@extend_schema(
+    methods=["GET"], description="Retrieve a list of posts or a specific post by ID"
+)
+@extend_schema(
+    methods=["POST"], description="Create a specific post and add the post to the list"
+)
+@extend_schema(methods=["DELETE"], description="Delete a specific post")
+@extend_schema(methods=["PUT"], description="Update a specific post")
+@extend_schema(
+    methods=["GET"],
+    parameters=[
+        OpenApiParameter(
+            name="include_comments",
+            type=OpenApiTypes.BOOL,
+            description="Include comments for each post if set to true. "
+            "Only available at api/posts/ endpoint.",
+            required=False,
+        )
+    ],
+)
 class PostViewSet(viewsets.ModelViewSet):
-    """Viewset for viewing and editing post instances.
-
-    Supports filtering by title, and dynamically returns
-    either basic post-information or posts with their related
-    comments based on the 'include_comments' query parameter.
-
-    Attributes:
-        filter_backends (tuple): DjangoFilterBackend for filtering resources.
-        filterset_fields (tuple): Field names allowed for filtering.
-        http_method_names (list): Allowed HTTP methods.
-        permission_classes (list): Custom permission classes applied to the viewset.
-    """
+    """Endpoint for viewing and editing posts."""
 
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("title",)
@@ -73,15 +84,25 @@ class PostViewSet(viewsets.ModelViewSet):
         return Post.objects.all()
 
 
+@extend_schema(
+    methods=["GET"],
+    description="Retrieve a list of comments by post ID (post_pk) "
+    "or a specific comment by a post ID and then a comment ID",
+)
+@extend_schema(
+    methods=["POST"],
+    description="Create a specific comment for a specific post (post_pk)",
+)
+@extend_schema(
+    methods=["DELETE"],
+    description="Delete a specific comment for a specific post (post_pk)",
+)
+@extend_schema(
+    methods=["PUT"],
+    description="Update a specific comment for a specific post (post_pk)",
+)
 class CommentViewSet(viewsets.ModelViewSet):
-    """A viewset for viewing and editing comment instances, filtered by their
-    associated post-ID.
-
-    Attributes:
-        serializer_class (Type[CommentSerializer]): The serializer class for comments.
-        http_method_names (list): Allowed HTTP methods.
-        permission_classes (list): Custom permission classes applied to the viewset.
-    """
+    """Endpoint for viewing and editing comments."""
 
     serializer_class = CommentSerializer
     http_method_names = ["get", "post", "put", "delete"]

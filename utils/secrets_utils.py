@@ -6,6 +6,9 @@ from google.cloud import secretmanager
 # https://cloud.google.com/secret-manager/docs/
 # access-secret-version#secretmanager-access-secret-version-python
 
+# Create the Secret Manager client.
+client = secretmanager.SecretManagerServiceClient()
+
 
 def access_secret(project_id: str, secret_id: str, version_id: str = "latest") -> str:
     """Access the payload for the given secret version if one exists.
@@ -15,9 +18,6 @@ def access_secret(project_id: str, secret_id: str, version_id: str = "latest") -
     """
 
     # TODO: Make unit tests for me, mock out the API and simulate.
-
-    # Create the Secret Manager client.
-    client = secretmanager.SecretManagerServiceClient()
 
     # dev, staging or prod
     environment = config("ENVIRONMENT")
