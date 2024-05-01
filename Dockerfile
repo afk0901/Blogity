@@ -16,6 +16,18 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
+#TODO: Assuming local environment, will change this when connecting to Google clouds.
+ENV DEBUG=True
+ENV PATH_TO_DJANGO_SETTINGS='Bloggity.settings.local'
+ENV SECRET_KEY="django-insecure-kih$vse%bf+e9%4=ii7yye+s120^r8ug!5$4@k@3hnfsk+@i%r"
+ENV DB_NAME="Bloggity"
+ENV USER="postgres"
+ENV DB_PASS=""
+ENV HOST="localhost"
+ENV PORT=5432
+ENV STATIC_URL="static/"
+ENV ALLOWED_HOSTS="localhost,127.0.0.1"
+
 WORKDIR /app
 
 # Create a non-privileged user that the app will run under.
@@ -42,8 +54,6 @@ RUN apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
-
-RUN --mount=type=bind,source=./.env,target=./.env
 
 # Switch to the non-privileged user to run the application.
 USER appuser
