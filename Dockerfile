@@ -1,4 +1,6 @@
-FROM python:3.11-slim-buster
+FROM alpine:latest
+
+LABEL maintainer="arnarfkr@gmail.com"
 
 WORKDIR /app
 
@@ -36,20 +38,22 @@ ENV ALLOWED_HOSTS="localhost,127.0.0.1"
 # Switch to the non-privileged user to run the application.
 #USER appuser
 
+RUN apk update
+
+RUN apk add --no-cache python3=3.11.9-r0 py3-pip
+RUN python3 -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+# For Postgres
+RUN apk add --no-cache libpq-dev gcc python3-dev postgresql-dev musl-dev
+
 # Copy the source code into the container.
 COPY . .
 
-RUN apt-get update
-
-# For Postgres
-RUN apt-get install -y libpq-dev
-
-RUN apt-get install -y gcc
-
-RUN python -m pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 # Expose the port that the application listens on.
 EXPOSE 8000
 
 # Run the application.
-CMD python manage.py migrate; python manage.py runserver
+CMD python manage.py migrate && python manage.py runserver 0.0.0.0:8000
