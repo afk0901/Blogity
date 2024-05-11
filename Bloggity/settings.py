@@ -12,13 +12,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
-from decouple import config
+from utils.secrets_utils import GoogleCloudsSecretManager
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", cast=bool)
+secretmanager = GoogleCloudsSecretManager()
+
+DEBUG = bool(secretmanager.access_secret("DEBUG"))
 
 # Application definition
 
@@ -36,7 +37,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
 ]
 
-SECRET_KEY = config("DJANGO_SECRET_KEY")
+
+SECRET_KEY = secretmanager.access_secret("DJANGO_SECRET_KEY")
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -44,11 +46,11 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASS"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
+        "NAME": secretmanager.access_secret("DB_NAME"),
+        "USER": secretmanager.access_secret("DB_USER"),
+        "PASSWORD": secretmanager.access_secret("DB_PASS"),
+        "HOST": secretmanager.access_secret("DB_HOST"),
+        "PORT": secretmanager.access_secret("DB_PORT"),
     }
 }
 
@@ -121,10 +123,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-STATIC_URL = config("STATIC_URL")
+STATIC_URL = secretmanager.access_secret("STATIC_URL")
 
 # example.com, example2.com so on in the .env file
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+ALLOWED_HOSTS = secretmanager.access_secret("ALLOWED_HOSTS").split(",")
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=99999),
