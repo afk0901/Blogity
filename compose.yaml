@@ -3,12 +3,14 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "80:80"
     depends_on:
           db:
             condition: service_healthy
   db:
     image: postgres:latest
+    volumes:
+      - /var/lib/postgresql/data
     environment:
       POSTGRES_DB: "Bloggity"
       POSTGRES_USER: "postgres"
