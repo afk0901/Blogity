@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import google_crc32c
 
-from utils.secrets_utils import GoogleCloudsSecretManager
+from GoogleClouds.secrets_utils import GoogleCloudsSecretManager
 
 
 class SecretAccess(unittest.TestCase):
