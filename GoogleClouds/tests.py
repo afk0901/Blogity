@@ -17,8 +17,10 @@ class SecretAccess(unittest.TestCase):
         payload=MagicMock(data=b"MySecret")
     )
 
-    @patch("utils.secrets_utils.secretmanager.SecretManagerServiceClient", new=mock)
-    @patch("utils.secrets_utils.google_crc32c.Checksum", new=checksum_mock)
+    @patch(
+        "GoogleClouds.secrets_utils.secretmanager.SecretManagerServiceClient", new=mock
+    )
+    @patch("GoogleClouds.secrets_utils.google_crc32c.Checksum", new=checksum_mock)
     def test_successful_retrieval(self):
         self.checksum.update(b"MySecret")
         self.mock_client.payload.data_crc32c = int(self.checksum.hexdigest(), 16)
@@ -28,7 +30,9 @@ class SecretAccess(unittest.TestCase):
         )
         self.assertEqual("MySecret", result)
 
-    @patch("utils.secrets_utils.secretmanager.SecretManagerServiceClient", new=mock)
+    @patch(
+        "GoogleClouds.secrets_utils.secretmanager.SecretManagerServiceClient", new=mock
+    )
     def test_invalid_checksum(self):
         self.mock_client.payload.data_crc32c = 0
         result = GoogleCloudsSecretManager().access_secret(

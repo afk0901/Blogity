@@ -13,7 +13,7 @@ class GoogleCloudsSecretManager:
 
     def access_secret(self, secret_id: str, version_id="latest") -> str:
         environment = config("ENV")
-        google_cloud_project_name = config("GC_PROJECT_NAME")
+        google_cloud_project_name = "blogity"
         name = (
             f"projects/{google_cloud_project_name}/secrets/{secret_id}-"
             f"{environment}/versions/{version_id}"

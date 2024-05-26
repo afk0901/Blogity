@@ -2,21 +2,8 @@ version: '3.8'
 services:
   web:
     build: .
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=./key.json
+      - ENV=DEV
     ports:
       - "80:80"
-    depends_on:
-          db:
-            condition: service_healthy
-  db:
-    image: postgres:latest
-    volumes:
-      - /var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: "Bloggity"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: 12345
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5

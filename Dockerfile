@@ -4,12 +4,10 @@ LABEL maintainer="arnarfkr@gmail.com"
 
 WORKDIR /app
 
-# Prevents Python from writing pyc files.
-ENV PYTHONDONTWRITEBYTECODE=1
-
+# Prevents Python from writing pyc files and
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/venv/bin:$PATH"
 
 # Installing Python
 RUN apk update && apk add --no-cache python3=3.11.9-r0 \
@@ -19,16 +17,13 @@ apk add --no-cache libpq-dev && \
 apk add --no-cache gcc && \
 apk add --no-cache python3-dev && \
 apk add --no-cache postgresql-dev && \
-apk add --no-cache musl-dev 
-
-ENV PATH="/venv/bin:$PATH"
-
-# Temporarly accessing requirments.txt and install project dependencies
-RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
-    pip install --requirement /tmp/requirements.txt
+apk add --no-cache musl-dev && \
+apk add --no-cache tzdata
 
 # Copy the source code into the container.
 COPY . .
+
+RUN pip install --requirement ./requirements-ci.txt
 
 EXPOSE 80
 
