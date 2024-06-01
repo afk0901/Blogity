@@ -28,6 +28,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "middleware.logging.LoggingMiddleWare",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -128,4 +129,23 @@ SPECTACULAR_SETTINGS = {
     For more detailed guides and comprehensive information,
     please refer to our documentation on GitHub!
     """,
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": "./logs.log",
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "WARNING",
+            "propagate": True,
+        },
+    },
 }

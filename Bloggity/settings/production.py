@@ -24,22 +24,3 @@ DATABASES = {
 STATIC_URL = secretmanager.access_secret("STATIC_URL")
 
 ALLOWED_HOSTS = ["localhost"]
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "file": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": "./logs.log",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": "WARNING",
-            "propagate": True,
-        },
-    },
-}

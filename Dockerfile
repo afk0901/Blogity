@@ -10,7 +10,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/venv/bin:$PATH"
 
 # Installing Python
-RUN apk update && apk add --no-cache python3=3.11.9-r0 \
+RUN apk update && apk add --no-cache python3 \
 && apk add --no-cache py3-pip && python3 -m venv /venv && \
 # Installing dependencies for Postgres
 apk add --no-cache libpq-dev && \

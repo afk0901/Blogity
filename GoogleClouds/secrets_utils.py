@@ -23,7 +23,7 @@ class GoogleCloudsSecretManager:
         crc32c = google_crc32c.Checksum()
         crc32c.update(response.payload.data)
         if response.payload.data_crc32c != int(crc32c.hexdigest(), 16):
-            # TODO: Log the incident
+            # TODO: Return 400 status code and test it.
             return "Data corruption detected."
 
         return response.payload.data.decode("utf-8")
