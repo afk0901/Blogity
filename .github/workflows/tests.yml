@@ -42,7 +42,7 @@ jobs:
     - name: Run Tests
       env:
         PATH_TO_DJANGO_SETTINGS: "Bloggity.settings.local"
-        STATIC_URL: "static/"
+        STATIC_URL: "static_files/"
         DEBUG: True
         ALLOWED_HOSTS: "localhost,127.0.0.1"
         DJANGO_SECRET_KEY: "django-insecure-kih$vse%bf+e9%4=ii7yye+s120^r8ug!5$4@k@3hnfsk+@i%r"

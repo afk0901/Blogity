@@ -7,8 +7,11 @@ __pycache__/
 # Docker artifacts
 data/
 
-# Google Clouds
-key.json
-
 # logs
-logs.log
+*.log
+
+# local
+key.json
+key.pem
+cert.pem
+

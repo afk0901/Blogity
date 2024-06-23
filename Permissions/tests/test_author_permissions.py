@@ -1,6 +1,8 @@
 from unittest.mock import Mock
 
+from django.contrib.auth.models import AnonymousUser
 from django.test import SimpleTestCase
+from model_bakery import baker
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
@@ -14,19 +16,20 @@ class AuthorPermissionTest(SimpleTestCase):
     or blog comment."""
 
     def setUp(self) -> None:
-        self.user = Mock()
-        self.other_user = Mock()
+        self.author_id = 1
+        self.user = baker.prepare(CustomUser, id=1, username="user")
 
-        self.user.username = "user"
-        self.user.id = 1
-        self.other_user.username = "other_user"
-        self.other_user.id = 2
+        self.user_without_id = baker.prepare(CustomUser)
+        delattr(self.user_without_id, "id")
+
+        self.anonymous_user = AnonymousUser()
+        self.other_user = baker.prepare(CustomUser, id=2, username="other_user")
 
         self.permission = IsAuthorAnyRead()
 
         # Faking the object. Object should have the author as some user
         self.author_object = Mock()
-        self.author_object.author_id = self.user.id
+        self.author_object.author_id = self.author_id
 
         # REST API request factory
         self.factory = APIRequestFactory()
@@ -35,13 +38,13 @@ class AuthorPermissionTest(SimpleTestCase):
 
         self.detail_view_url = "/some-url/1/"
 
-    def post_request(self, user: CustomUser) -> Request:
+    def post_request(self, user: CustomUser | AnonymousUser) -> Request:
         """Simulates a post-request without performing one.
 
         :param user: The user performing the request
         :return: Post request with an extra data attribute
         """
-        data = {"author_id": self.user.id, "title": "", "content": ""}
+        data = {"author_id": self.author_id, "title": "", "content": ""}
 
         request = self.factory.post(self.list_view_url)
         request.data = data  # type: ignore
@@ -49,10 +52,16 @@ class AuthorPermissionTest(SimpleTestCase):
         return request
 
     def test_has_object_permission_owner(self) -> None:
-        request = self.factory.get(self.list_view_url)
-        request.user = self.user
-        request.data = {}  # type: ignore
+        request = self.post_request(self.user)
         self.assertTrue(
+            self.permission.has_object_permission(
+                request, APIView(), self.author_object
+            )
+        )
+
+    def test_has_object_permission_not_author(self) -> None:
+        request = self.post_request(self.other_user)
+        self.assertFalse(
             self.permission.has_object_permission(
                 request, APIView(), self.author_object
             )
@@ -64,8 +73,16 @@ class AuthorPermissionTest(SimpleTestCase):
         request = self.post_request(self.user)
         self.assertTrue(self.permission.has_permission(request, APIView()))
 
+    def test_has_permission_owner_anonymous_user(self) -> None:
+        request = self.post_request(self.anonymous_user)
+        self.assertFalse(self.permission.has_permission(request, APIView()))
+
     def test_has_permission_not_owner_deny_add_to_list(self) -> None:
         request = self.post_request(self.other_user)
+        self.assertFalse(self.permission.has_permission(request, APIView()))
+
+    def test_has_object_permission_anonymous(self) -> None:
+        request = self.post_request(self.anonymous_user)
         self.assertFalse(self.permission.has_permission(request, APIView()))
 
     def test_has_permission_get_true_user(self) -> None:
@@ -96,7 +113,11 @@ class AuthorPermissionTest(SimpleTestCase):
         request.data = {}  # type: ignore
         self.assertTrue(self.permission.has_permission(request, APIView()))
 
-    def test_has_permission_get_true_true_user_details(self) -> None:
+    def test_has_permission_request_user_no_id(self):
+        request = self.post_request(self.user_without_id)
+        self.assertFalse(self.permission.has_permission(request, APIView()))
+
+    def test_get_has_object_permission(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.user
         request.data = {}  # type: ignore
@@ -106,11 +127,19 @@ class AuthorPermissionTest(SimpleTestCase):
             )
         )
 
-    def test_has_permission_get_true_true_other_user_details(self) -> None:
+    def test_get_has_object_permission_not_author(self) -> None:
         request = self.factory.get(self.detail_view_url)
         request.user = self.other_user
         request.data = {}  # type: ignore
         self.assertTrue(
+            self.permission.has_object_permission(
+                request, APIView(), self.author_object
+            )
+        )
+
+    def test_has_object_permission_no_id(self):
+        request = self.post_request(self.user_without_id)
+        self.assertFalse(
             self.permission.has_object_permission(
                 request, APIView(), self.author_object
             )

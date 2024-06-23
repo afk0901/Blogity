@@ -15,4 +15,23 @@ DATABASES = {
     }
 }
 
-STATIC_URL = "/static/"
+STATIC_URL = "/static_files/"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "./dev-logs.log",
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}

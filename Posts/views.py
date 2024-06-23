@@ -69,14 +69,14 @@ class PostViewSet(viewsets.ModelViewSet):
             return PostWithCommentsSerializer
         return PostSerializer
 
-    def get_queryset(self) -> QuerySet["Post"]:
+    def get_queryset(self) -> QuerySet:
         """Retrieve the queryset of posts.
 
         Optionally including related comments
         based on the 'include_comments' query parameter.
 
         Returns:
-            QuerySet["Post"]: A queryset of Post instances,
+            QuerySet: A queryset of Post instances,
                               optionally including related comments.
         """
         if self.request.query_params.get("include_comments") == "true":
@@ -86,20 +86,20 @@ class PostViewSet(viewsets.ModelViewSet):
 
 @extend_schema(
     methods=["GET"],
-    description="Retrieve a list of comments by post ID (post_pk) "
+    description="Retrieve a list of comments by post ID"
     "or a specific comment by a post ID and then a comment ID",
 )
 @extend_schema(
     methods=["POST"],
-    description="Create a specific comment for a specific post (post_pk)",
+    description="Create a specific comment for a specific post",
 )
 @extend_schema(
     methods=["DELETE"],
-    description="Delete a specific comment for a specific post (post_pk)",
+    description="Delete a specific comment for a specific post",
 )
 @extend_schema(
     methods=["PUT"],
-    description="Update a specific comment for a specific post (post_pk)",
+    description="Update a specific comment for a specific post",
 )
 class CommentViewSet(viewsets.ModelViewSet):
     """Endpoint for viewing and editing comments."""
@@ -108,12 +108,12 @@ class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "put", "delete"]
     permission_classes = [IsAuthorAnyRead]
 
-    def get_queryset(self) -> QuerySet["Comment"]:
+    def get_queryset(self) -> QuerySet:
         """Retrieve the queryset of comments for a specific post, identified by
         'post_pk' URL parameter.
 
         Returns:
-            QuerySet["Comment"]: A queryset of Comment instances
+            QuerySet: A queryset of Comment instances
                                  associated with the specified post.
         """
         post_id = str(self.kwargs.get("post_pk"))

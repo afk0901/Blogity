@@ -7,7 +7,8 @@ WORKDIR /app
 # Prevents Python from writing pyc files and
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/venv/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/venv/bin:$PATH" \
+DJANGO_SETTINGS_MODULE=Bloggity.settings.production
 
 # Installing Python
 RUN apk update && apk add --no-cache python3 \
@@ -23,14 +24,11 @@ apk add --no-cache tzdata
 # Copy the source code into the container.
 COPY . .
 
-RUN pip install --requirement ./requirements-ci.txt
+RUN pip install gunicorn && pip install --requirement ./requirements.txt && \
+addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 
-EXPOSE 80
+EXPOSE 443
 
-# Create a non-privileged user that the app will run under.
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN chown -R appuser:appgroup /app
 USER appuser
 
 ENTRYPOINT ["/app/docker-runserver.sh"]

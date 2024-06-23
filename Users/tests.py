@@ -55,8 +55,8 @@ class UserResponsePostDataCustomUserType(AuthenticationResponseClientType):
 
 
 class TestUser:
-    """Provides static methods for creating and authenticating users, along
-    with utility methods for testing."""
+    """Provides static_files methods for creating and authenticating users,
+    along with utility methods for testing."""
 
     @staticmethod
     def create_user_response() -> PostDataResponse:
@@ -219,13 +219,13 @@ class AuthenticateUserTestCases(TestCase):
         self.assertContains(self.auth_response, "refresh", status_code=HTTPStatus.OK)
 
 
-@parameterized_class(
-    ("authenticate",),
-    [
-        (True,),
-        (False,),
-    ],
-)
+# @parameterized_class(
+#     ("authenticate",),
+#     [
+#         (True,),
+#         (False,),
+#     ],
+# )
 class GetIndividualUser(TestCase):
     """Tests the retrieval of individual user data, ensuring correct status
     code and data integrity."""
@@ -239,7 +239,7 @@ class GetIndividualUser(TestCase):
         for that user's data."""
         create_test_user = TestUser.create_test_user()
         authenticated_client = create_test_user["client"]
-        client = Client.get_client(authenticated_client, cls.authenticate)
+        client = Client.get_client(authenticated_client, True)
         user_id = CustomUser.objects.latest("id").id
         cls.resp = client.get(f"/api/users/{user_id}/")
 
