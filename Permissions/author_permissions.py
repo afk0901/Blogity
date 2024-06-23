@@ -31,11 +31,12 @@ class IsAuthorAnyRead(permissions.BasePermission):
             otherwise False, not granting permissions.
         """
 
+        if not hasattr(request.user, "id"):
+            return False
+
         if request.method == "POST":
             # Casting to prevent type mismatch.
-            return hasattr(request.user, "id") and str(
-                request.data.get("author_id")
-            ) == str(request.user.id)
+            return str(request.data.get("author_id")) == str(request.user.id)
         return True
 
     def has_object_permission(
@@ -57,6 +58,6 @@ class IsAuthorAnyRead(permissions.BasePermission):
             return True
         else:
             # Casting to prevent type mismatch.
-            return hasattr(request.user, "id") and str(obj.author_id) == str(
+            return hasattr(request.user, "id") and str(obj.author_id.id) == str(
                 request.user.id
             )

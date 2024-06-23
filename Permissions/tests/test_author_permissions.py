@@ -29,7 +29,7 @@ class AuthorPermissionTest(SimpleTestCase):
 
         # Faking the object. Object should have the author as some user
         self.author_object = Mock()
-        self.author_object.author_id = self.author_id
+        self.author_object.author_id.id = self.author_id
 
         # REST API request factory
         self.factory = APIRequestFactory()
