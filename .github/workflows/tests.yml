@@ -40,5 +40,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
     - name: Run Tests
+      env:
+        ENV: "DEV"
       run: |
         python manage.py test -v 3
