@@ -2,7 +2,7 @@
 
 This API provides a comprehensive platform for managing user-generated content, 
 tailored specifically for applications that involve creation, update, and deletion 
-of posts and comments initally inteded for a blog site, but after a realization, it's actually multipurpose.
+of posts and comments initially intended for a blog site, but after a realization, it's actually multipurpose.
 
 This platform is designed to facilitate community interactions without the need 
 for authentication to view content, making it perfect for open forums, 
@@ -61,31 +61,14 @@ comment sections, and social apps.
    ```
    pip install -r requirements-dev.txt
    ```
-   
-4. **Environment Setup**
-   
-   Create a .env file in the root directory of the project with following variables:
-   
-   - DEBUG=True/False depending on if debug mode should be activated or not in the base settings
-   - PATH_TO_DJANGO_SETTINGS='Bloggity.settings.local'
-   
-     **Note:** if the intention is to run with the production or staging settings then replace .local with .staging or.production
-   - DJANGO_SECRET_KEY=django-insecure-kih$vse%bf+e9%4=ii7yye+s120^r8ug!5$4@k@3hnfsk+@i%r
-   - DB_NAME=Bloggity
-   - DB_USER=postgres
-   - DB_PASS=```<your postgres password>```
-   - DB_HOST=localhost
-   - DB_PORT=5432
-   - STATIC_URL=static/
-   - ALLOWED_HOSTS=localhost,127.0.0.1 **Note:** You may need to change these to your allowed hosts if used on a diffrent host than localhost.
      
-5. **Database Initialization**
+4. **Database Initialization**
     
     Run the following command to setup the database:
    
     ```python manage.py migrate```
 
-7. **Install Pre-commit Hooks** (Optional but highly recommended)
+5. **Install Pre-commit Hooks** (Optional but highly recommended)
    Set up pre-commit hooks to ensure code style and standards are verified before each commit, if the intention is to commit to the repository:
 
    Run the following command to set up pre-commit hooks:
@@ -93,10 +76,10 @@ comment sections, and social apps.
    ```pre-commit install```
    
 
-7. **Start the Development Server**
+6. **Start the Development Server**
 
-    Run the following command to run the development server:
-    ```python manage.py runserver```
+    Run the following command to run the development server locally with the hardcoded local settings:
+    ```python manage.py runserver ```
 
 ## Access the API ##
    
