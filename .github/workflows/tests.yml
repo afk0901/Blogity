@@ -17,9 +17,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: "user"
+          POSTGRES_USER: "postgres"
           POSTGRES_PASSWORD: "12345"
-          POSTGRES_DB: "testdb"
+          POSTGRES_DB: "Bloggity"
         ports:
           - 5432:5432
         # This ensures the service container is ready before moving on.
