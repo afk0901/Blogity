@@ -53,17 +53,6 @@ jobs:
         run: python -m pip install djangorestframework-stubs
 
       - name: mypy
-        env:
-          PATH_TO_DJANGO_SETTINGS: "Bloggity.settings.local"
-          STATIC_URL: "static/"
-          DEBUG: True
-          ALLOWED_HOSTS: "localhost,127.0.0.1"
-          DJANGO_SECRET_KEY: "django-insecure-kih$vse%bf+e9%4=ii7yye+s120^r8ug!5$4@k@3hnfsk+@i%r"
-          DB_NAME: "testdb"
-          DB_USER: "user"
-          DB_PASS: "pass"
-          DB_HOST: "localhost"
-          DB_PORT: 5432
         uses: liskin/gh-problem-matcher-wrap@e7b7beaaafa52524748b31a381160759d68d61fb
         with:
           run: mypy

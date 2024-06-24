@@ -2,7 +2,7 @@ name: Tests
 
 on:
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "deployment" ]
 
 jobs:
   build:
@@ -17,9 +17,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: "user"
-          POSTGRES_PASSWORD: "pass"
-          POSTGRES_DB: "testdb"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "12345"
+          POSTGRES_DB: "Bloggity"
         ports:
           - 5432:5432
         # This ensures the service container is ready before moving on.
@@ -41,15 +41,6 @@ jobs:
         pip install -r requirements-ci.txt
     - name: Run Tests
       env:
-        PATH_TO_DJANGO_SETTINGS: "Bloggity.settings.local"
-        STATIC_URL: "static/"
-        DEBUG: True
-        ALLOWED_HOSTS: "localhost,127.0.0.1"
-        DJANGO_SECRET_KEY: "django-insecure-kih$vse%bf+e9%4=ii7yye+s120^r8ug!5$4@k@3hnfsk+@i%r"
-        DB_NAME: "testdb"
-        DB_USER: "user"
-        DB_PASS: "pass"
-        DB_HOST: "localhost"
-        DB_PORT: 5432
+        ENV: "DEV"
       run: |
         python manage.py test -v 3

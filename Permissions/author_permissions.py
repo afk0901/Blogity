@@ -30,6 +30,10 @@ class IsAuthorAnyRead(permissions.BasePermission):
         :return: True if user is the author of the object, granting permission,
             otherwise False, not granting permissions.
         """
+
+        if not hasattr(request.user, "id"):
+            return False
+
         if request.method == "POST":
             # Casting to prevent type mismatch.
             return str(request.data.get("author_id")) == str(request.user.id)
@@ -54,4 +58,6 @@ class IsAuthorAnyRead(permissions.BasePermission):
             return True
         else:
             # Casting to prevent type mismatch.
-            return str(obj.author_id.id) == str(request.user.id)
+            return hasattr(request.user, "id") and str(obj.author_id.id) == str(
+                request.user.id
+            )
