@@ -4,9 +4,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
-# Docker artifacts
-data/
-
 # logs
 *.log
 
@@ -14,4 +11,3 @@ data/
 key.json
 key.pem
 cert.pem
-

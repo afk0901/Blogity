@@ -74,12 +74,17 @@ comment sections, and social apps.
    Run the following command to set up pre-commit hooks:
    
    ```pre-commit install```
-   
 
 6. **Start the Development Server**
-
     Run the following command to run the development server locally with the hardcoded local settings:
     ```python manage.py runserver ```
+
+## Running the tests ##
+   
+   1. Set the ENV environment variable to DEV either in .env file or in the terminal
+   2. Run ```python manage.py test```. 
+      You can also use an optional file path if only testing certain directory or 
+      file as the second parameter to this command.
 
 ## Access the API ##
    

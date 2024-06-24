@@ -219,13 +219,13 @@ class AuthenticateUserTestCases(TestCase):
         self.assertContains(self.auth_response, "refresh", status_code=HTTPStatus.OK)
 
 
-# @parameterized_class(
-#     ("authenticate",),
-#     [
-#         (True,),
-#         (False,),
-#     ],
-# )
+@parameterized_class(
+    ("authenticate",),
+    [
+        (True,),
+        (False,),
+    ],
+)
 class GetIndividualUser(TestCase):
     """Tests the retrieval of individual user data, ensuring correct status
     code and data integrity."""

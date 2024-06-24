@@ -51,7 +51,6 @@ LOGGING = {
 
 CORS_ALLOWED_ORIGINS = ["https://arnarfreyr.is"]
 
-# Optional: specify CORS allowed methods and headers
 CORS_ALLOW_METHODS = [
     "GET",
     "POST",
