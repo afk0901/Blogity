@@ -68,7 +68,7 @@ jobs:
         uses: 'google-github-actions/auth@v0.4.0'
         with:
           token_format: 'access_token'
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          workload_identity_provider: '//iam.googleapis.com/projects/550216339571/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
 
       # Authenticate Docker to Google Cloud Artifact Registry
