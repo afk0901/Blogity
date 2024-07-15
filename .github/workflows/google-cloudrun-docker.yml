@@ -69,7 +69,7 @@ jobs:
         with:
           token_format: 'access_token'
           workload_identity_provider: 'projects/550216339571/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-          service_account: 'blogity-service-account@blogity.iam.gserviceaccount.com'
+          service_account: 'Blogity-service-account@blogity.iam.gserviceaccount.com'
 
       # Authenticate Docker to Google Cloud Artifact Registry
       - name: Docker Auth
