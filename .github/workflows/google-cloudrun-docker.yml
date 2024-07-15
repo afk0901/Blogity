@@ -65,12 +65,11 @@ jobs:
 
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v0.4.0'
+        uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
           workload_identity_provider: '//iam.googleapis.com/projects/550216339571/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'blogity-service-account@blogity.iam.gserviceaccount.com'
-          audience: "//iam.googleapis.com/projects/550216339571/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
 
       # Authenticate Docker to Google Cloud Artifact Registry
       - name: Docker Auth
