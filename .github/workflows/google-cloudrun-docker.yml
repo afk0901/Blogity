@@ -63,6 +63,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Print OIDC Token Claims
+        run: echo ${{ steps.extract-token.outputs.token }}
+        shell: bash
+
       - name: Google Auth
         id: auth
         uses: 'google-github-actions/auth@v2'
