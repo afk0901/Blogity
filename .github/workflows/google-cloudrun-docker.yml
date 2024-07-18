@@ -63,12 +63,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Print WIF
-        run: echo '${{ env.WIF_PROVIDER }}'
-
-      - name: Print Service
-        run: echo '${{ env.WIF_SERVICE_ACCOUNT }}'
-
       - name: Google Auth
         id: auth
         uses: 'google-github-actions/auth@v2'
