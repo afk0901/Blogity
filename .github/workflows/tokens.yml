@@ -1,0 +1,12 @@
+jobs:
+  print-oidc-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract OIDC token
+        id: extract-token
+        run: echo "::set-output name=token::$(curl -H 'Authorization: bearer ${{secrets.GITHUB_TOKEN}}' ${{ github.token_url }})"
+        shell: bash
+
+      - name: Print OIDC Token Claims
+        run: echo ${{ steps.extract-token.outputs.token }}
+        shell: bash
