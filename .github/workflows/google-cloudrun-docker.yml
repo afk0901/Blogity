@@ -70,6 +70,17 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/550216339571/locations/global/workloadIdentityPools/github-actions
+          service_account: Blogity-service-account@blogity.iam.gserviceaccount.com
+
+      - name: Test GCP Authentication
+        run: |
+          gcloud auth list
+          gcloud projects list
+
      # - name: Google Auth
       #  id: auth
        # uses: 'google-github-actions/auth@v2'
