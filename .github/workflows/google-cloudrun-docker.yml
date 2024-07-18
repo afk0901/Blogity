@@ -66,9 +66,14 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          token_format: 'access_token'
           workload_identity_provider: projects/550216339571/locations/global/workloadIdentityPools/github-actions/providers/github-actions-provider
           service_account: Blogity-service-account@blogity.iam.gserviceaccount.com
+
+      - name: Get GCP access token
+        run: |
+          echo "Fetching GCP access token..."
+          ACCESS_TOKEN=$(gcloud auth print-access-token)
+          echo "Access Token: $ACCESS_TOKEN"
 
       # Authenticate Docker to Google Cloud Artifact Registry
      # - name: Docker Auth
