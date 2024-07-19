@@ -49,7 +49,7 @@ on:
 env:
   PROJECT_ID: blogity
   GAR_LOCATION: us-central1 
-  SERVICE: blogity-00001-28j
+  SERVICE: cloud-run-source-deploy
   REGION: us-central1
 
 jobs:
