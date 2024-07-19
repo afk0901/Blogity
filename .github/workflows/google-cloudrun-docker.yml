@@ -51,6 +51,7 @@ env:
   GAR_LOCATION: us-central1 
   SERVICE: cloud-run-source-deploy
   REGION: us-central1
+  ENV: PROD
 
 jobs:
   deploy:
