@@ -132,3 +132,5 @@ SPECTACULAR_SETTINGS = {
     please refer to our documentation on GitHub!
     """,
 }
+
+ALLOWED_HOSTS = ["arnarfreyr.is", "localhost", "cloudrun-x2sqdobldq-uc.a.run.app"]
