@@ -28,8 +28,6 @@ STATIC_URL = "static_files/"
 
 STATIC_ROOT = "Bloggity/static_files/"
 
-ALLOWED_HOSTS = ["arnarfreyr.is", "localhost", "cloudrun-x2sqdobldq-uc.a.run.app"]
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -63,7 +61,7 @@ CORS_ALLOW_HEADERS = [
     "content-type",
 ]
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000
