@@ -28,7 +28,7 @@ STATIC_URL = "static_files/"
 
 STATIC_ROOT = "Bloggity/static_files/"
 
-ALLOWED_HOSTS = ["arnarfreyr.is", "localhost"]
+ALLOWED_HOSTS = ["arnarfreyr.is", "localhost", "cloudrun-x2sqdobldq-uc.a.run.app"]
 
 LOGGING = {
     "version": 1,
