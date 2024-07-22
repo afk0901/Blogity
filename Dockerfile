@@ -24,8 +24,6 @@ apk add --no-cache tzdata
 # Copy the source code into the container.
 COPY . .
 
-RUN chmod +x ./docker-runserver.sh
-
 RUN pip install gunicorn && pip install --requirement ./requirements.txt && \
 addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 
