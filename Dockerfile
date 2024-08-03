@@ -24,12 +24,13 @@ apk add --no-cache tzdata
 # Copy the source code into the container.
 COPY . .
 
+RUN chmod +x /app/docker-runserver.sh
+
 RUN pip install gunicorn && pip install --requirement ./requirements.txt && \
 addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 
-EXPOSE 8080
+EXPOSE 443
 
 USER appuser
 
-RUN python manage.py collectstatic --noinput --settings Bloggity.settings.production && \
-    python manage.py migrate --settings Bloggity.settings.production
+ENTRYPOINT ["/app/docker-runserver.sh"]
