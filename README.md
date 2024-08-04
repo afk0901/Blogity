@@ -8,6 +8,8 @@ This platform is designed to facilitate community interactions without the need
 for authentication to view content, making it perfect for open forums, 
 comment sections, and social apps.
 
+Access the API [here](https://arnarfreyr.is/api/)
+
 # Table of contents
 
 1. [Features](#features)

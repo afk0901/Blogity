@@ -47,11 +47,10 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = ["arnarfreyr.is", "localhost", "cloudrun-x2sqdobldq-uc.a.run.app"]
+ALLOWED_HOSTS = ["arnarfreyr.is", "localhost", "34.70.48.164"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://arnarfreyr.is",
-    "https://cloudrun-x2sqdobldq-uc.a.run.app",
 ]
 
 CORS_ALLOW_METHODS = [
