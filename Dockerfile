@@ -29,7 +29,7 @@ RUN chmod +x /app/docker-runserver.sh
 RUN pip install gunicorn && pip install --requirement ./requirements.txt && \
 addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 
-EXPOSE 8080
+EXPOSE 443
 
 USER appuser
 
