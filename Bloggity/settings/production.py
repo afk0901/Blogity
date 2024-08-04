@@ -47,7 +47,7 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["arnarfreyr.is", "localhost"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://arnarfreyr.is",
