@@ -1,1 +1,0 @@
-web: ./docker-runserver.sh
