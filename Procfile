@@ -1,1 +1,1 @@
-web: /app/docker-runserver.sh
+web: ./docker-runserver.sh
