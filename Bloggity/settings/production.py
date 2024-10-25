@@ -47,13 +47,13 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = secretmanager.access_secret("ALLOWED_HOSTS")
+ALLOWED_HOSTS = ["staging.arnarfreyr.is", "arnarfreyr.is", "localhost"]
 
-CORS_ALLOWED_ORIGINS = secretmanager.access_secret("CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGINS = ["https://staging.arnarfreyr.is", "https://arnarfreyr.is"]
 
-CORS_ALLOW_METHODS = secretmanager.access_secret("CORS_ALLOW_METHODS")
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE"]
 
-CORS_ALLOW_HEADERS = secretmanager.access_secret("CORS_ALLOW_HEADERS")
+CORS_ALLOW_HEADERS = ["authorization", "content-type"]
 
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
