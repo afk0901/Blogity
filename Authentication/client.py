@@ -9,7 +9,7 @@ from rest_framework.test import APIClient
 class Client:
     """This class contains custom methods about the test client itself.
 
-    Such as when to return authenticated client with an API key, JWT key
+    Such as when to return authenticated client with an API key.pem, JWT key.pem
     or other authentication methods. It may be extended for more
     operations on the test client class.
     """
@@ -25,7 +25,7 @@ class Client:
         This is useful when it's possible to iterate over booleans, for example when
         parameterizing tests.
 
-        :param authenticated_client: An authenticated client with API key, JWT token, or
+        :param authenticated_client: An authenticated client with API key.pem, JWT token, or
             other authentication measures.
         :param authenticate: If true return authenticated client otherwise return
             unauthenticated client.
