@@ -24,6 +24,12 @@ DATABASES = {
     }
 }
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 STATIC_URL = "static_files/"
 
 STATIC_ROOT = "Bloggity/static_files/"
@@ -55,7 +61,7 @@ CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE"]
 
 CORS_ALLOW_HEADERS = ["authorization", "content-type"]
 
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000
