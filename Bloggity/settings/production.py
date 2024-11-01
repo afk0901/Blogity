@@ -53,9 +53,18 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = ["staging.arnarfreyr.is", "arnarfreyr.is", "localhost", "nginx-962105788020.us-central1.run.app"]
+ALLOWED_HOSTS = [
+    "staging.arnarfreyr.is",
+    "arnarfreyr.is",
+    "localhost",
+    "nginx-962105788020.us-central1.run.app",
+]
 
-CORS_ALLOWED_ORIGINS = ["https://staging.arnarfreyr.is", "https://arnarfreyr.is", "https://nginx-962105788020.us-central1.run.app"]
+CORS_ALLOWED_ORIGINS = [
+    "https://staging.arnarfreyr.is",
+    "https://arnarfreyr.is",
+    "https://nginx-962105788020.us-central1.run.app",
+]
 
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE"]
 
