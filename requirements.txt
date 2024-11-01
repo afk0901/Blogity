@@ -12,3 +12,4 @@ google-crc32c==1.5.0
 user-agents==2.2.0
 django-sslserver==0.22
 setuptools>=50.0
+whitenoise==6.8.2
