@@ -88,7 +88,7 @@ class TestBlogPost:
                 baker.prepare(Post, author_id=user)
             )
             response: Response = client.post(
-                "/api/posts/",
+                "/posts/",
                 data=json.dumps(request_data),
                 content_type="application/json",
             )
@@ -137,7 +137,7 @@ class TestBlogComment:
             request_data_and_response: RequestDataResponse = {
                 "request_data": comment,
                 "response": client.post(
-                    f"/api/posts/{post_id}/comments/",
+                    f"/posts/{post_id}/comments/",
                     data=comment,
                     format="json",
                 ),
@@ -206,7 +206,7 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         cls.post_id = Post.objects.latest("id").id
 
         cls.request_data = request_data_response[0]["request_data"]
-        cls.update_url = f"/api/posts/{cls.post_id}/"
+        cls.update_url = f"/posts/{cls.post_id}/"
         cls.update_client = create_test_user_and_create_blog_post["client"]
 
     def test_update_title(self) -> None:
@@ -245,7 +245,7 @@ class AuthenticatedUserCreatedUpdatedIndividualPost(TestCase):
         user = baker.prepare(CustomUser, id=1)
         data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
         resp = APIClient().put(
-            f"/api/posts/{self.post_id}/",
+            f"/posts/{self.post_id}/",
             data=json.dumps(data),
             content_type="application/json",
         )
@@ -268,7 +268,7 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
         super().setUpClass()
         client = TestBlogPost.setup_user_posts_and_client(cls.authenticate)
         post_id = Post.objects.latest("id").id
-        cls.response = client.get(f"/api/posts/{post_id}/")
+        cls.response = client.get(f"/posts/{post_id}/")
 
     def test_post_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
@@ -282,7 +282,7 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
         user = baker.prepare(CustomUser, id=1)
         data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
         resp = APIClient().post(
-            "/api/posts/",
+            "/posts/",
             data=json.dumps(data),
             content_type="application/json",
         )
@@ -306,7 +306,7 @@ class CreateUserAndGetAllPostsTest(TestCase):
         client = TestBlogPost.setup_user_posts_and_client(
             cls.authenticate, number_of_posts=3
         )
-        cls.response = client.get("/api/posts/")
+        cls.response = client.get("/posts/")
 
     def test_post_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
@@ -339,7 +339,7 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
         ) = TestBlogComment.setup_user_posts_get_authenticated_user_create_comment(
             authenticate=cls.authenticate, number_of_comments=3
         )
-        cls.response = client.get(f"/api/posts/{post.id}/comments/")
+        cls.response = client.get(f"/posts/{post.id}/comments/")
 
     def test_comment_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
@@ -387,7 +387,7 @@ class CreateUserCreatePostCreateComments(TestCase):
         post_id = self.request_data["post"]
         data = model_to_dict(baker.prepare(Comment, id=1, author_id=user))
         resp = APIClient().post(
-            f"/api/posts/{post_id}/comments/",
+            f"/posts/{post_id}/comments/",
             data=json.dumps(data),
             content_type="application/json",
         )
@@ -414,7 +414,7 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
             cls.authenticate
         )
         comment_id = Comment.objects.filter(post=post)[0].id
-        cls.response = client.get(f"/api/posts/{post.id}/comments/{comment_id}/")
+        cls.response = client.get(f"/posts/{post.id}/comments/{comment_id}/")
 
     def test_comment_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
@@ -449,7 +449,7 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
             TestBlogComment.create_comment_post_response(
                 authenticated_client, post, number_of_comments=1
             )
-        cls.response = client.get("/api/posts/?include_comments=true")
+        cls.response = client.get("/posts/?include_comments=true")
 
     def test_all_posts_and_comments_fetched_successfully_status_code(
         self,
@@ -485,12 +485,12 @@ class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):
             authenticate=True
         )
         comment_id = Comment.objects.latest("id").id
-        cls.old_comment = client.get(f"/api/posts/{post.id}/comments/{comment_id}/")
+        cls.old_comment = client.get(f"/posts/{post.id}/comments/{comment_id}/")
         author = baker.prepare(CustomUser, id=cls.old_comment.data["author_id"])
         cls.new_comment = model_to_dict(
             baker.prepare(Comment, id=1, post=post, author_id=author)
         )
-        cls.update_url = f"/api/posts/{post.id}/comments/{comment_id}/"
+        cls.update_url = f"/posts/{post.id}/comments/{comment_id}/"
         cls.updated_comment_response = client.put(
             cls.update_url,
             data=json.dumps(cls.new_comment),
@@ -544,7 +544,7 @@ class CreateUserCreatePostDeletePost(TestCase):
             True, number_of_posts=3
         )
         cls.post_id = Post.objects.latest("id").id
-        cls.resp = authenticated_client.delete(f"/api/posts/{cls.post_id}/")
+        cls.resp = authenticated_client.delete(f"/posts/{cls.post_id}/")
 
     def test_delete_post_status(self) -> None:
         self.assertEqual(self.resp.status_code, HTTPStatus.NO_CONTENT)
@@ -555,7 +555,7 @@ class CreateUserCreatePostDeletePost(TestCase):
 
     def test_only_owner_can_delete(self) -> None:
         resp = TestUser.create_test_user()["client"].delete(
-            f"/api/posts/{self.post_id - 1}/"
+            f"/posts/{self.post_id - 1}/"
         )
 
         self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
@@ -579,7 +579,7 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
         cls.last_comment_id = Comment.objects.latest("id").id
         cls.post_id = post.id
         cls.resp = client.delete(
-            f"/api/posts/{cls.post_id}/comments/{cls.last_comment_id}/"
+            f"/posts/{cls.post_id}/comments/{cls.last_comment_id}/"
         )
 
     def test_delete_comment_status(self) -> None:
@@ -591,19 +591,19 @@ class CreateUserCreatePostDeleteIndividualComment(TestCase):
 
     def test_only_owner_can_delete(self) -> None:
         resp = TestUser.create_test_user()["client"].delete(
-            f"/api/posts/{self.post_id}/comments/{self.last_comment_id - 1}/"
+            f"/posts/{self.post_id}/comments/{self.last_comment_id - 1}/"
         )
 
         self.assertEqual(resp.status_code, HTTPStatus.FORBIDDEN)
 
     def test_unauthorized_user_cannot_delete(self) -> None:
         resp = APIClient().delete(
-            f"/api/posts/{self.post_id}/", content_type="application/json"
+            f"/posts/{self.post_id}/", content_type="application/json"
         )
         self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
 
     def test_unauthorized_user_cannot_delete_comment(self) -> None:
         resp = APIClient().delete(
-            f"/api/posts/{self.post_id}/", content_type="application/json"
+            f"/posts/{self.post_id}/", content_type="application/json"
         )
         self.assertEqual(resp.status_code, HTTPStatus.UNAUTHORIZED)
