@@ -11,9 +11,19 @@ from django.db.models.query import QuerySet
 from Users.models import CustomUser
 
 
-class PostManager(models.Manager):
+class CommentsManager(models.Manager):
+    """A custom manager for the Comments model."""
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("publish_date")
+
+
+class PostsManager(models.Manager):
     """A custom manager for the Post model, adds methods to efficiently query
     all posts and their related comments."""
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("title")
 
     def get_all_posts_and_related_comments(self) -> QuerySet:
         """Retrieve all Post instances from the database, prefetching related
@@ -23,7 +33,7 @@ class PostManager(models.Manager):
             QuerySet: A QuerySet of all Post instances with their related
             comments prefetched.
         """
-        return self.all().prefetch_related("comments")
+        return self.prefetch_related("comments").order_by("title")
 
 
 class Post(models.Model):
@@ -36,10 +46,7 @@ class Post(models.Model):
     content = models.TextField()
     publish_date = models.DateTimeField(auto_now=True)
 
-    objects = (
-        models.Manager()
-    )  # In the case, we may not want to use the custom manager.
-    post_manager = PostManager()
+    objects = PostsManager()
 
     def __str__(self) -> str:
         """Return a string representation of the Post instance, including its
@@ -56,6 +63,8 @@ class Comment(models.Model):
     )
     content = models.TextField()
     publish_date = models.DateTimeField(auto_now=True)
+
+    objects = CommentsManager()
 
     def __str__(self) -> str:
         """Return a string representation of the Comment instance, including

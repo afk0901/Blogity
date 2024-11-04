@@ -33,7 +33,7 @@ class PostQuerySetTest(SimpleTestCase):
         self.viewset = PostViewSet()
         self.viewset.request = self.mock_request
 
-    @patch("Posts.models.Post.post_manager.get_all_posts_and_related_comments")
+    @patch("Posts.models.Post.objects.get_all_posts_and_related_comments")
     def test_get_queryset_return_related_comments(
         self, mock_get_all_posts_and_related_comments: MagicMock
     ) -> None:

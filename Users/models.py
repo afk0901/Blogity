@@ -6,8 +6,13 @@ user management by allowing for additional fields and methods to be
 added to the user model.
 """
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+
+
+class CustomUserManager(UserManager):
+    def get_queryset(self):
+        return super().get_queryset().order_by("username")
 
 
 class CustomUser(AbstractUser):
@@ -23,3 +28,7 @@ class CustomUser(AbstractUser):
 
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
+
+    # Ignoring the type for MyPy. It's very obvious what the type should be.
+    # MyPy gets a bit confused because of the UserManager inheritance.
+    objects = CustomUserManager()  # type: ignore
