@@ -132,7 +132,7 @@ SPECTACULAR_SETTINGS = {
                           users endpoint.
 
     2. Authentication: Obtain your JWT authentication token by submitting your
-                        username and password in a POST request the token endpoint.
+                        username and password in a POST request to the token endpoint.
 
     3. Explore Endpoints: With your token, you can now use the PUT, POST,
                           and DELETE methods on the endpoints below to manage content.
