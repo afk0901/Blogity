@@ -98,6 +98,8 @@ SIMPLE_JWT = {
 }
 
 REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
@@ -114,22 +116,27 @@ SPECTACULAR_SETTINGS = {
     Tailored for applications that involve creation, update,
     and deletion of posts and comments.
 
+    The API also provides pagination. To make use of it add ?page=<page number>
+    behind the endpoint.
+
+    Note that only the first page in the pagination is shown here on this page.
+
     Note: Everybody can see the posts and comments without any authentication.
-    So feel free to execute a GET request on the endpoints below.
+
+    Feel free to give it a try!
 
     To perform actions such as creation, update, and deletion,
     please follow these steps:
 
     1. User Registration: Create a user by sending a POST request to the
-                          api/users endpoint.
+                          users endpoint.
 
     2. Authentication: Obtain your JWT authentication token by submitting your
-                        username and password in a POST request to api/token/.
+                        username and password in a POST request the token endpoint.
 
     3. Explore Endpoints: With your token, you can now use the PUT, POST,
                           and DELETE methods on the endpoints below to manage content.
 
-    For more detailed guides and comprehensive information,
-    please refer to our documentation on GitHub!
+    Github: https://github.com/afk0901/Blogity
     """,
 }
