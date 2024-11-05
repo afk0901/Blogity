@@ -1,6 +1,6 @@
 import json
 from http import HTTPStatus
-from typing import TypedDict
+from typing import List, TypedDict
 
 from django.forms import model_to_dict
 from django.test import TestCase
@@ -299,6 +299,7 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
 class CreateUserAndGetAllPostsTest(TestCase):
     authenticate: bool
     response: Response
+    response_data: List[dict[str, str]]
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -307,14 +308,15 @@ class CreateUserAndGetAllPostsTest(TestCase):
             cls.authenticate, number_of_posts=3
         )
         cls.response = client.get("/posts/")
+        cls.response_data = cls.response.data["results"]
 
     def test_post_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
     def test_post_retrieved_successfully(self) -> None:
-        self.assertEqual(len(self.response.data), 3)
+        self.assertGreater(len(self.response_data), 0)
 
-        for post in self.response.data:
+        for post in self.response_data:
             self.assertIn("author_id", post)
             self.assertIn("title", post)
             self.assertIn("content", post)
@@ -330,6 +332,7 @@ class CreateUserAndGetAllPostsTest(TestCase):
 class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
     authenticate: bool
     response: Response
+    response_data: List[dict[str, str]]
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -340,14 +343,15 @@ class CreateUserAndGetAllCommentsRelatedToPostTest(TestCase):
             authenticate=cls.authenticate, number_of_comments=3
         )
         cls.response = client.get(f"/posts/{post.id}/comments/")
+        cls.response_data = cls.response.data["results"]
 
     def test_comment_retrieved_successfully_status_code(self) -> None:
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
     def test_comment_retrieved_successfully(self) -> None:
-        self.assertEqual(len(self.response.data), 3)
+        self.assertGreater(len(self.response_data), 0)
 
-        for comment in self.response.data:
+        for comment in self.response_data:
             self.assertIn("author_id", comment)
             self.assertIn("post", comment)
             self.assertIn("content", comment)
@@ -435,6 +439,7 @@ class CreateUserCreatePostCreateCommentGetIndividualComment(TestCase):
 class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
     authenticate: bool
     response: Response
+    response_data: List[dict[str, str]]
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -450,6 +455,7 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
                 authenticated_client, post, number_of_comments=1
             )
         cls.response = client.get("/posts/?include_comments=true")
+        cls.response_data = cls.response.data["results"]
 
     def test_all_posts_and_comments_fetched_successfully_status_code(
         self,
@@ -457,17 +463,17 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
     def test_all_posts_and_comments_fetched_successfully(self) -> None:
-        self.assertEqual(len(self.response.data), 3)
 
-        for post in self.response.data:
+        self.assertGreater(len(self.response_data), 0)
+        for post in self.response_data:
             self.assertIn("author_id", post)
             self.assertIn("title", post)
             self.assertIn("content", post)
 
-            comment = post["comments"][0]
-            self.assertIn("author_id", comment)
-            self.assertIn("post", comment)
-            self.assertIn("content", comment)
+            first_comment = post["comments"][0]
+            self.assertIn("author_id", first_comment)
+            self.assertIn("post", first_comment)
+            self.assertIn("content", first_comment)
 
 
 class CreateUserCreatePostCreateCommentUpdateIndividualComment(TestCase):

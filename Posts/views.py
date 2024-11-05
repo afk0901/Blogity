@@ -80,7 +80,7 @@ class PostViewSet(viewsets.ModelViewSet):
                               optionally including related comments.
         """
         if self.request.query_params.get("include_comments") == "true":
-            return Post.post_manager.get_all_posts_and_related_comments()
+            return Post.objects.get_all_posts_and_related_comments()
         return Post.objects.all()
 
 
