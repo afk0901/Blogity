@@ -8,6 +8,8 @@ secretmanager = GoogleCloudsSecretManager()
 
 DEBUG = False
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 SECRET_KEY = secretmanager.access_secret("DJANGO_SECRET_KEY")
 
 INSTALLED_APPS += ["sslserver"]  # noqa
