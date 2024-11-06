@@ -60,6 +60,7 @@ ALLOWED_HOSTS = [
     "arnarfreyr.is",
     "localhost",
     "nginx-463509866170.europe-north1.run.app",
+    "blogity-staging-463509866170.europe-north1.run.app",
 ]
 
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE"]
