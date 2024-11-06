@@ -8,8 +8,6 @@ secretmanager = GoogleCloudsSecretManager()
 
 DEBUG = False
 
-CORS_ALLOW_ALL_ORIGINS = True
-
 SECRET_KEY = secretmanager.access_secret("DJANGO_SECRET_KEY")
 
 INSTALLED_APPS += ["sslserver"]  # noqa
@@ -61,6 +59,12 @@ ALLOWED_HOSTS = [
     "localhost",
     "nginx-463509866170.europe-north1.run.app",
     "blogity-staging-463509866170.europe-north1.run.app",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://staging.arnarfreyr.is",
+    "https://arnarfreyr.is",
+    "https://nginx-463509866170.europe-north1.run.app",
 ]
 
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE"]
