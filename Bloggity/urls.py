@@ -28,7 +28,7 @@ router.register("users", UserViewSet, basename="users")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("posts/", include("Posts.urls")),
     path("users/", include("Users.urls")),
