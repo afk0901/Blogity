@@ -90,7 +90,7 @@ class TestBlogPost:
                 baker.prepare(Post, author_id=user)
             )
             response: Response = client.post(
-                "{url_prefix}",
+                f"{url_prefix}",
                 data=json.dumps(request_data),
                 content_type="application/json",
             )
@@ -284,7 +284,7 @@ class CreateUserAndGetIndividualPostSuccessfullyTest(TestCase):
         user = baker.prepare(CustomUser, id=1)
         data = model_to_dict(baker.prepare(Post, id=1, author_id=user))
         resp = APIClient().post(
-            "{url_prefix}",
+            f"{url_prefix}",
             data=json.dumps(data),
             content_type="application/json",
         )
@@ -309,7 +309,7 @@ class CreateUserAndGetAllPostsTest(TestCase):
         client = TestBlogPost.setup_user_posts_and_client(
             cls.authenticate, number_of_posts=3
         )
-        cls.response = client.get("{url_prefix}")
+        cls.response = client.get(f"{url_prefix}")
         cls.response_data = cls.response.data["results"]
 
     def test_post_retrieved_successfully_status_code(self) -> None:
@@ -456,7 +456,7 @@ class CreateUserCreatePostCreateCommentGetAllCommentsAndAllPosts(TestCase):
             TestBlogComment.create_comment_post_response(
                 authenticated_client, post, number_of_comments=1
             )
-        cls.response = client.get("{url_prefix}?include_comments=true")
+        cls.response = client.get(f"{url_prefix}?include_comments=true")
         cls.response_data = cls.response.data["results"]
 
     def test_all_posts_and_comments_fetched_successfully_status_code(
