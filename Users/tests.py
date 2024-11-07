@@ -29,6 +29,8 @@ from rest_framework.test import APIClient
 from Authentication.client import Client
 from Users.models import CustomUser
 
+users_url = "/api/users/"
+
 
 class AuthenticationResponseClientType(TypedDict):
     """Defines the type for responses from authentication and the client used
@@ -70,7 +72,7 @@ class TestUser:
         post_data = model_to_dict(baker.prepare(CustomUser))
         return {
             "post_data": post_data,
-            "response": client.post("/users/", post_data, format="json"),
+            "response": client.post(f"{users_url}", post_data, format="json"),
         }
 
     @staticmethod
@@ -87,10 +89,11 @@ class TestUser:
         """
         client = APIClient()
         response = client.post(
-            "/token/",
+            "/api/token/",
             {"username": username, "password": password},
             format="json",
         )
+
         authentication_token = response.data["access"]
 
         return {
@@ -241,7 +244,7 @@ class GetIndividualUser(TestCase):
         authenticated_client = create_test_user["client"]
         client = Client.get_client(authenticated_client, True)
         user_id = CustomUser.objects.latest("id").id
-        cls.resp = client.get(f"/users/{user_id}/")
+        cls.resp = client.get(f"{users_url}{user_id}/")
 
     def test_get_individual_user_status_code(self) -> None:
         """Checks if the HTTP status code for retrieving an individual user is
@@ -274,13 +277,13 @@ class UpdateIndividualUser(TestCase):
         test_user = TestUser.create_test_user()
         authenticated_client = test_user["client"]
         cls.user_id = CustomUser.objects.latest("id").id
-        cls.old_user = authenticated_client.get(f"/users/{cls.user_id}/")
+        cls.old_user = authenticated_client.get(f"{users_url}{cls.user_id}/")
         cls.new_user = model_to_dict(
             baker.prepare(CustomUser, id=1, last_login=datetime.datetime.now())
         )
 
         cls.updated_user_response = authenticated_client.put(
-            f"/users/{cls.user_id}/", data=cls.new_user
+            f"{users_url}{cls.user_id}/", data=cls.new_user
         )
 
     def test_update_individual_user_status_code(self) -> None:
@@ -328,7 +331,7 @@ class UpdateIndividualUser(TestCase):
         """Ensures that only the authorized user (owner) can update their data,
         testing with a forbidden status."""
         updated_user_response = TestUser.create_test_user()["client"].put(
-            f"/users/{self.user_id}/",
+            f"{users_url}{self.user_id}/",
             data=self.new_user,
             content_type="application/json",
         )
@@ -339,7 +342,7 @@ class UpdateIndividualUser(TestCase):
         """Ensures that an unauthorized user cannot update user data, expecting
         an unauthorized status code."""
         resp = APIClient().put(
-            f"/users/{self.user_id}/",
+            f"{users_url}{self.user_id}/",
             data=self.new_user,
             content_type="application/json",
         )
@@ -358,7 +361,9 @@ class UserCantDelete(TestCase):
         """Prepare test data by creating a user and attempting to delete it."""
         create_test_user = TestUser.create_test_user()
         cls.current_user_id = create_test_user["user_response"].data["id"]
-        cls.resp = create_test_user["client"].delete(f"/users/{cls.current_user_id}/")
+        cls.resp = create_test_user["client"].delete(
+            f"{users_url}{cls.current_user_id}/"
+        )
 
     def test_user_cant_delete_it_self_status_code(self) -> None:
         """Verifies that a user cannot delete their own account, expecting a
@@ -372,14 +377,14 @@ class UserCantDelete(TestCase):
         expecting method not allowed status."""
         create_test_user = TestUser.create_test_user()
         current_user_id = create_test_user["user_response"].data["id"]
-        resp = create_test_user["client"].delete(f"/users/{current_user_id - 1}/")
+        resp = create_test_user["client"].delete(f"{users_url}{current_user_id - 1}/")
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
 
     def test_unauthorized_user_cant_delete_a_user_status_code(self) -> None:
         """Ensures that an unauthorized user cannot delete a user data,
         expecting a method not allowed status code."""
         resp = APIClient().delete(
-            f"/users/{self.current_user_id}/",
+            f"{users_url}{self.current_user_id}/",
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, HTTPStatus.METHOD_NOT_ALLOWED)
