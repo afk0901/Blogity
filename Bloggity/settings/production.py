@@ -30,7 +30,7 @@ STORAGES = {
     },
 }
 
-STATIC_URL = "static_files/"
+STATIC_URL = "/api/static_files/"
 
 STATIC_ROOT = "Bloggity/static_files/"
 
@@ -57,20 +57,12 @@ ALLOWED_HOSTS = [
     "staging.arnarfreyr.is",
     "arnarfreyr.is",
     "localhost",
-    "nginx-463509866170.europe-north1.run.app",
     "blogity-staging-463509866170.europe-north1.run.app",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://staging.arnarfreyr.is",
     "https://arnarfreyr.is",
-    "https://nginx-463509866170.europe-north1.run.app",
-]
-
-CORS_ALLOWED_ORIGINS = [
-    "https://staging.arnarfreyr.is",
-    "https://arnarfreyr.is",
-    "https://nginx-463509866170.europe-north1.run.app",
 ]
 
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE"]
