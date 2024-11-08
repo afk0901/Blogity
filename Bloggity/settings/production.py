@@ -58,6 +58,7 @@ ALLOWED_HOSTS = [
     "arnarfreyr.is",
     "localhost",
     "blogity-staging-463509866170.europe-north1.run.app",
+    "blogity-prod-463509866170.europe-north1.run.app",
 ]
 
 CORS_ALLOWED_ORIGINS = [
