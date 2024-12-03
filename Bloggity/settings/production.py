@@ -55,7 +55,7 @@ ALLOWED_HOSTS = [
     "staging.arnarfreyr.is",
     "arnarfreyr.is",
     "localhost",
-    "https://blogity.onrender.com",
+    "blogity.onrender.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
