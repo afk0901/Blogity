@@ -1,25 +1,23 @@
 """Production Django settings."""
 
-from GoogleClouds.secrets_utils import GoogleCloudsSecretManager
+import os
 
 from .base import *  # noqa
 
-secretmanager = GoogleCloudsSecretManager()
-
 DEBUG = False
 
-SECRET_KEY = secretmanager.access_secret("DJANGO_SECRET_KEY")
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 INSTALLED_APPS += ["sslserver"]  # noqa
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": secretmanager.access_secret("DB_NAME"),
-        "USER": secretmanager.access_secret("DB_USER"),
-        "PASSWORD": secretmanager.access_secret("DB_PASS"),
-        "HOST": secretmanager.access_secret("DB_HOST"),
-        "PORT": secretmanager.access_secret("DB_PORT"),
+        "NAME": os.environ["DB_NAME"],
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASS"],
+        "HOST": os.environ["DB_HOST"],
+        "PORT": os.environ["DB_PORT"],
         "CONN_MAX_AGE": 300,
     }
 }
@@ -57,8 +55,7 @@ ALLOWED_HOSTS = [
     "staging.arnarfreyr.is",
     "arnarfreyr.is",
     "localhost",
-    "blogity-staging-463509866170.europe-north1.run.app",
-    "blogity-prod-463509866170.europe-north1.run.app",
+    "https://blogity.onrender.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
