@@ -1,15 +1,10 @@
-# User-Generated Content Management API
+# Overview
 
-This API provides a comprehensive platform for managing user-generated content, 
-tailored specifically for applications that involve creation, update, and deletion 
-of posts and comments initially intended for a blog site, but after a realization, it's actually multipurpose.
+A RESTful API built with the Django REST framework for managing user-generated content through posts and comments. Therefore, this API supports typical blog or forum-style interactions, where anyone can read content, and only authenticated users can contribute where users can only modify their own content.
 
-This platform is designed to facilitate community interactions without the need 
-for authentication to view content, making it perfect for open forums, 
-comment sections, and social apps.
+Designed to support public content viewing, user registration, and secure content modification using JWT-based authentication.
 
-**Note:** The API may be very slow at first so due to the server instance being inactive to save financial personal cost.
-It could take couple of minutes. I apologize the delay.
+**Note:** The API is stored on an instance that needs some time to spin up to save costs. 
 
 Feel free to access the [API](https://arnarfreyr.is/api/)
 
