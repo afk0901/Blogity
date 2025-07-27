@@ -1,6 +1,6 @@
 # Overview
 
-A RESTful API built with the Django REST framework for managing user-generated content through posts and comments. Therefore, this API supports typical blog or forum-style interactions, where anyone can read content, and only authenticated users can contribute where users can only modify their own content.
+A RESTful API built with the Django REST framework for managing user-generated content through posts and comments. This API supports typical blog or forum-style interactions, where anyone can read content, and only authenticated users can contribute where users can only modify their own content.
 
 Designed to support public content viewing, user registration, and secure content modification using JWT-based authentication.
 
